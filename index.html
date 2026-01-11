@@ -257,12 +257,13 @@
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 40px rgba(255, 0, 128, 0.3);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .about-image img {
             width: 100%;
             height: 400px;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -273,7 +274,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(255, 0, 128, 0.3), rgba(121, 40, 202, 0.3));
+            background: transparent;
             z-index: 1;
         }
 
@@ -342,6 +343,8 @@
             align-items: center;
             justify-content: center;
             font-size: 3rem;
+            overflow: hidden;
+            border-radius: 25px 25px 0 0;
         }
 
         .media-info {
@@ -493,6 +496,13 @@
             transition: all 0.3s ease;
         }
 
+        .social-links a img {
+            width: 2.5rem;
+            height: 2.5rem;
+            object-fit: contain;
+            display: block;
+        }
+
         .social-links a:hover {
             color: var(--primary);
             transform: translateY(-3px);
@@ -580,12 +590,12 @@
         <h2 class="section-title">The DJ Pazo Experience</h2>
         <div class="about-content">
             <div class="about-image">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23ff0080;stop-opacity:0.3' /%3E%3Cstop offset='100%25' style='stop-color:%237928ca;stop-opacity:0.3' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='%23000' width='800' height='600'/%3E%3Crect fill='url(%23grad)' width='800' height='600'/%3E%3Ccircle cx='400' cy='300' r='150' fill='none' stroke='%23ff0080' stroke-width='2' opacity='0.3'/%3E%3Ccircle cx='400' cy='300' r='100' fill='none' stroke='%2300d4ff' stroke-width='2' opacity='0.3'/%3E%3Ccircle cx='400' cy='300' r='50' fill='%23ff0080' opacity='0.2'/%3E%3C/svg%3E" alt="DJ Performance">
+                <img src="images/dj_picture_1_square.JPG" alt="DJ Performance">
             </div>
             <div class="about-text">
                 <h3>More Than Just Music</h3>
-                <p>With over 10 years of experience commanding dance floors across the country, I specialize in reading the crowd and creating an atmosphere that transforms your venue into an unforgettable experience.</p>
-                <p>From intimate lounges to massive festival stages, I bring technical expertise, an extensive music library spanning all genres, and the energy to keep your guests engaged from the first beat to the last call.</p>
+                <p>With over 5 years of experience commanding dance floors across NWA, I specialize in reading the crowd and creating an atmosphere that transforms your venue into an unforgettable experience.</p>
+                <p>From intimate lounges to massive venues, I bring technical expertise, an extensive music library spanning all genres, and the energy to keep your guests engaged from the first beat to the last call.</p>
                 <div class="skills">
                     <span class="skill-tag">EDM & House</span>
                     <span class="skill-tag">Hip-Hop & R&B</span>
@@ -603,9 +613,11 @@
         <div class="media-grid">
             <a href="https://soundcloud.com/dj-pazo/throwbacks-hip-hop-dj-setlist" target="_blank" class="media-card-link">
                 <div class="media-card">
-                    <div class="media-thumbnail">🎵</div>
+                    <div class="media-thumbnail">
+                        <img src="images/dj_picture_3.JPEG" alt="THROWBACKS & HIP-HOP DJ SETLIST">
+                    </div>
                     <div class="media-info">
-                        <h3>Summer Heat Mix 2024</h3>
+                        <h3>Throwbacks & Hip-Hop DJ Setlist</h3>
                         <p>60-minute high-energy set featuring the hottest tracks of the season</p>
                         <span class="media-link">Listen on SoundCloud →</span>
                     </div>
@@ -613,21 +625,25 @@
             </a>
             <a href="https://www.youtube.com/watch?v=H6E2ZaXPPWM&t=132s" target="_blank" class="media-card-link">
                 <div class="media-card">
-                    <div class="media-thumbnail">🎥</div>
+                    <div class="media-thumbnail">
+                        <img src="images/edm_house_full_setlist_image.png" alt="EDM & House Short Performance">
+                    </div>
                     <div class="media-info">
-                        <h3>Festival Main Stage</h3>
-                        <p>Full performance video from Electric Paradise Festival 2024</p>
+                        <h3>EDM & House Short Performance</h3>
+                        <p>Full performance video from Pazo's short EDM/House Set</p>
                         <span class="media-link">Watch on YouTube →</span>
                     </div>
                 </div>
             </a>
-            <a href="https://soundcloud.com/dj-pazo/moonlight" target="_blank" class="media-card-link">
+            <a href="https://www.youtube.com/watch?v=u26VNPv-oXs" target="_blank" class="media-card-link">
                 <div class="media-card">
-                    <div class="media-thumbnail">🔊</div>
+                    <div class="media-thumbnail">
+                        <img src="images/moonlight_pazo.png" alt="Latest Track by Pazo">
+                    </div>
                     <div class="media-info">
                         <h3>Moonlight</h3>
                         <p>Latest Track by Pazo</p>
-                        <span class="media-link">Listen on SoundCloud →</span>
+                        <span class="media-link">Listen on YouTube→</span>
                     </div>
                 </div>
             </a>
@@ -639,24 +655,24 @@
         <h2 class="section-title">Trusted By The Best</h2>
         <div class="clients-grid">
             <div class="client-card">
-                <div class="client-logo">VELOCITY</div>
-                <p class="testimonial">"DJ Pazo absolutely killed it at our grand opening. The energy was incredible and the dance floor stayed packed all night. Already booked for our next event!"</p>
-                <p class="client-name">— Marcus Chen, Velocity Nightclub</p>
+                <div class="client-logo">WENDY & TROY</div>
+                <p class="testimonial">"DJ Pazo absolutely killed it at our wedding. The energy was incredible and the dance floor stayed moving all night. Highly recommend!"</p>
+                <p class="client-name">— Wendy Echeverria</p>
             </div>
             <div class="client-card">
-                <div class="client-logo">SKYBAR</div>
-                <p class="testimonial">"Professional, punctual, and pure talent. He knows exactly how to read the room and keep the vibe perfect for our upscale clientele."</p>
-                <p class="client-name">— Sarah Rodriguez, SkyBar Lounge</p>
+                <div class="client-logo">CARLOS ZAMORA</div>
+                <p class="testimonial">"Professional, punctual, and pure talent. He knows exactly how to read the room and keep the vibe perfect for our events!"</p>
+                <p class="client-name">— Carlos Zamora</p>
             </div>
             <div class="client-card">
-                <div class="client-logo">PAZO FEST</div>
-                <p class="testimonial">"We've had countless DJs perform at our festival, but DJ Pazo stands out. His technical skills and stage presence are unmatched."</p>
-                <p class="client-name">— Jamie Thompson, Pazo Festival</p>
+                <div class="client-logo">JALAL ALTAL</div>
+                <p class="testimonial">"We've had countless DJs perform at our parties, but DJ Pazo stands out. His technical skills and stage presence are unmatched."</p>
+                <p class="client-name">— Jalal Altal, GDF</p>
             </div>
             <div class="client-card">
-                <div class="client-logo">THE VAULT</div>
-                <p class="testimonial">"Been our resident DJ for two years. Consistently delivers exceptional performances that keep our guests coming back every weekend."</p>
-                <p class="client-name">— Alex Morgan, The Vault</p>
+                <div class="client-logo">ISAAC MONTGOMERY</div>
+                <p class="testimonial">"The DJ Khaled of our time!"</p>
+                <p class="client-name">— Isaac Montgomery</p>
             </div>
         </div>
     </section>
@@ -699,12 +715,10 @@
     <!-- Footer -->
     <footer>
         <div class="social-links">
-            <a href="#" title="Instagram">📷</a>
-            <a href="https://soundcloud.com/dj-pazo" title="SoundCloud">🎵</a>
-            <a href="https://www.youtube.com/@pazobeats" title="YouTube">🎥</a>
-            <a href="#" title="Facebook">👤</a>
+            <a href="https://www.instagram.com/dj_pazo_official" title="Instagram"><img src="images/insta-white-logo.png" alt="" alt="Insta"></a>
+            <a href="https://soundcloud.com/dj-pazo" title="SoundCloud"><img src="images/soundcloud-white-icon.png" alt="SoundCloud"></a>
+            <a href="https://www.youtube.com/@pazobeats" title="YouTube"><img src="images/youtube-white-logo.png" alt="YouTube"></a>
         </div>
-        <p>&copy; 2024 DJ Pazo. All rights reserved. | Premium Entertainment Services</p>
     </footer>
 
     <script>
