@@ -39,12 +39,8 @@ const hasPoster = publicAssetExists(hero.poster);
       </div>
     </div>
 
-    <!-- Cinematic media frame -->
-    <div
-      class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]"
-      data-reveal
-      style="--reveal-delay: 240ms"
-    >
+    <!-- Cinematic media frame. Deliberately NOT animated: it holds the LCP image. -->
+    <div class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]">
       {
         hasPoster && (
           <img
