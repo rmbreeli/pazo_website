@@ -1,0 +1,154 @@
+---
+import Wordmark from './Wordmark.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { navigation } from '@config/content';
+import { business, contactLinks } from '@config/business';
+
+// "Home" is the wordmark itself on desktop; list the rest as links.
+const sectionLinks = navigation.filter((item) => item.id !== 'home');
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-ivory/95 transition-[border-color,background-color] duration-300 data-[scrolled=true]:border-line supports-[backdrop-filter]:bg-ivory/85 supports-[backdrop-filter]:backdrop-blur-md"
+>
+  <nav aria-label="Primary" class="container-site flex h-[var(--nav-height)] items-center justify-between gap-6">
+    <a href="#home" class="-m-2 p-2" aria-label={`${business.brand}, back to top`} data-nav-link="home">
+      <Wordmark class="text-[1.65rem]" />
+    </a>
+
+    <ul class="hidden items-center gap-9 lg:flex">
+      {
+        sectionLinks.map((item) => (
+          <li>
+            <a
+              href={`#${item.id}`}
+              data-nav-link={item.id}
+              class="link-line py-2 text-[0.8rem] font-semibold tracking-[0.08em] text-stone uppercase transition-colors hover:text-ink aria-[current=location]:text-ink"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="flex items-center gap-3">
+      <Button href="#contact" variant="primary" arrow={false} class="hidden !min-h-11 !px-5 !text-xs sm:inline-flex">
+        Book DJ PAZO
+      </Button>
+      <button
+        type="button"
+        id="menu-toggle"
+        class="-mr-2 inline-flex h-11 items-center gap-3 px-2 text-xs font-bold tracking-[0.16em] uppercase lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span data-menu-label>Menu</span>
+        <span class="relative block h-3 w-6" aria-hidden="true">
+          <span class="menu-bar absolute top-0 left-0 h-px w-full bg-ink transition-transform duration-300"></span>
+          <span class="menu-bar absolute bottom-0 left-0 h-px w-full bg-ink transition-transform duration-300"></span>
+        </span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="fixed inset-x-0 top-[var(--nav-height)] bottom-0 flex flex-col overflow-y-auto bg-ivory lg:hidden"
+    hidden
+  >
+    <ul class="container-site flex flex-col border-t border-line pt-6">
+      {
+        navigation.map((item, index) => (
+          <li class="border-b border-line">
+            <a
+              href={`#${item.id}`}
+              data-nav-link={item.id}
+              class="flex items-baseline gap-5 py-5 font-display text-[clamp(2rem,9vw,3rem)] leading-none font-semibold tracking-[-0.03em] aria-[current=location]:text-gold-ink"
+            >
+              <span class="eyebrow text-stone">{String(index).padStart(2, '0')}</span>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="container-site mt-auto flex flex-col gap-3 py-8 text-sm">
+      <a href={contactLinks.email} class="inline-flex items-center gap-3 py-1.5">
+        <Icon name="mail" size={16} />{business.contact.email}
+      </a>
+      <a href={contactLinks.phone} class="inline-flex items-center gap-3 py-1.5">
+        <Icon name="phone" size={16} />{business.contact.phoneDisplay}
+      </a>
+      <a href={contactLinks.instagram} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 py-1.5">
+        <Icon name="instagram" size={16} />{business.socials[0].handle}
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  #menu-toggle[aria-expanded='true'] .menu-bar:first-child {
+    transform: translateY(5.5px) rotate(45deg);
+  }
+  #menu-toggle[aria-expanded='true'] .menu-bar:last-child {
+    transform: translateY(-5.5px) rotate(-45deg);
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const toggle = document.getElementById('menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const label = toggle.querySelector('[data-menu-label]')!;
+  const outside = () => document.querySelectorAll<HTMLElement>('main, footer');
+
+  // Border appears once the page scrolls.
+  const onScroll = () => header.setAttribute('data-scrolled', String(window.scrollY > 8));
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const setMenu = (open: boolean) => {
+    toggle.setAttribute('aria-expanded', String(open));
+    label.textContent = open ? 'Close' : 'Menu';
+    menu.hidden = !open;
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    outside().forEach((el) => (el.inert = open)); // keeps keyboard focus inside the menu
+    if (open) menu.querySelector<HTMLElement>('a')?.focus();
+  };
+
+  const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
+  toggle.addEventListener('click', () => setMenu(!isOpen()));
+  menu.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isOpen()) {
+      setMenu(false);
+      toggle.focus();
+    }
+  });
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (mq) => mq.matches && setMenu(false));
+
+  // Highlight the section currently in view.
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]');
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries
+        .filter((entry) => entry.isIntersecting)
+        .forEach(({ target }) => {
+          links.forEach((link) =>
+            link.dataset.navLink === target.id
+              ? link.setAttribute('aria-current', 'location')
+              : link.removeAttribute('aria-current'),
+          );
+        });
+    },
+    { rootMargin: '-45% 0px -50% 0px' },
+  );
+  document.querySelectorAll('main > section[id]').forEach((section) => observer.observe(section));
+</script>

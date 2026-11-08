@@ -1,0 +1,39 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Testimonials from './Testimonials.astro';
+import Gallery from './Gallery.astro';
+import Listen from './Listen.astro';
+import { reviewsCopy } from '@config/content';
+---
+
+<section id="reviews-media" aria-labelledby="reviews-media-title" class="bg-paper">
+  <div class="container-site section-space">
+    <SectionHeading
+      id="reviews-media-title"
+      index={reviewsCopy.index}
+      label={reviewsCopy.label}
+      headline={reviewsCopy.headline}
+    />
+
+    <div class="mt-14 lg:mt-20">
+      <Testimonials />
+    </div>
+
+    <div class="mt-24 lg:mt-32">
+      <div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between lg:mb-10" data-reveal>
+        <div>
+          <p class="eyebrow flex items-center gap-4 text-stone">
+            <span class="rule-gold" aria-hidden="true"></span>{reviewsCopy.galleryLabel}
+          </p>
+          <h3 class="heading-lg mt-6">{reviewsCopy.galleryHeadline}</h3>
+        </div>
+        <p class="max-w-xs text-sm text-stone">Real events. Real dance floors. Tap any photo to view it larger.</p>
+      </div>
+      <Gallery />
+    </div>
+
+    <div class="mt-24 border-t border-line pt-16 lg:mt-32 lg:pt-20">
+      <Listen />
+    </div>
+  </div>
+</section>

@@ -1,3 +1,27 @@
-#ignore these files:
-
+# OS
 .DS_Store
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Environment (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Testing
+test-results/
+playwright-report/
+
+# Logs
+npm-debug.log*
+*.log
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/

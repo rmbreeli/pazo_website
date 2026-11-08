@@ -1,0 +1,41 @@
+---
+/**
+ * The site's single button primitive. Renders an <a> when `href` is given,
+ * otherwise a real <button>. Extra attributes (data-*, aria-*) pass through.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+
+type Variant = 'primary' | 'secondary' | 'gold' | 'ghost-light';
+
+type Props = (HTMLAttributes<'a'> | HTMLAttributes<'button'>) & {
+  href?: string;
+  variant?: Variant;
+  arrow?: 'right' | 'down' | 'up-right' | false;
+  type?: 'button' | 'submit';
+};
+
+const { href, variant = 'primary', arrow = 'right', type = 'button', class: className, ...rest } = Astro.props;
+
+const classes = ['btn', `btn-${variant}`, className];
+const external = href?.startsWith('http');
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={classes}
+      {...(external && { target: '_blank', rel: 'noopener noreferrer' })}
+      {...(rest as HTMLAttributes<'a'>)}
+    >
+      <slot />
+      {arrow && <Icon name={`arrow-${arrow}`} size={16} class="btn-arrow" />}
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...(rest as HTMLAttributes<'button'>)}>
+      <slot />
+      {arrow && <Icon name={`arrow-${arrow}`} size={16} class="btn-arrow" />}
+    </button>
+  )
+}

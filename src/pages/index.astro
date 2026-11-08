@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navigation from '@components/Navigation.astro';
+import Hero from '@components/Hero.astro';
+import PazoSound from '@components/PazoSound.astro';
+import ReviewsMedia from '@components/ReviewsMedia.astro';
+import Pricing from '@components/Pricing.astro';
+import Contact from '@components/Contact.astro';
+import Footer from '@components/Footer.astro';
+
+const title = 'DJ PAZO | Professional DJ in Northwest Arkansas';
+const description =
+  'DJ PAZO delivers professionally curated music and unforgettable DJ experiences for weddings, private events, nightlife, and celebrations throughout Northwest Arkansas.';
+---
+
+<BaseLayout title={title} description={description}>
+  <Navigation />
+  <main id="main">
+    <Hero />
+    <PazoSound />
+    <ReviewsMedia />
+    <Pricing />
+    <Contact />
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  // Gentle fade-up as content enters the viewport (CSS handles reduced motion).
+  const revealables = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    },
+    { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+  );
+  revealables.forEach((el) => observer.observe(el));
+</script>
