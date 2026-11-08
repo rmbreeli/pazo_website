@@ -46,7 +46,7 @@ const buildYear = new Date().getFullYear();
         <ul class="mt-5 space-y-3 text-ivory/80">
           <li><a href={contactLinks.email} class="link-line py-1 break-all hover:text-ivory">{business.contact.email}</a></li>
           <li><a href={contactLinks.phone} class="link-line py-1 hover:text-ivory">{business.contact.phoneDisplay}</a></li>
-          <li class="text-ivory/60">{business.location.region}, {business.location.state}</li>
+          <li class="text-ivory/60">{business.location.region}</li>
         </ul>
       </div>
 
@@ -74,14 +74,13 @@ const buildYear = new Date().getFullYear();
 
   <!-- Signature -->
   <div class="container-site" aria-hidden="true">
-    <Wordmark tone="light" class="block translate-y-[12%] text-[clamp(7rem,33vw,30rem)] leading-[0.75]" />
+    <Wordmark tone="light" class="-ml-[0.04em] block translate-y-[12%] text-[clamp(6rem,41.5vw,38rem)] leading-[0.75]" />
   </div>
 
   <div class="relative border-t border-line-dark bg-ink">
     <div class="container-site flex flex-col gap-2 py-6 text-xs text-ivory/70 sm:flex-row sm:justify-between">
       <p>
-        &copy; <span data-current-year>{buildYear}</span>
-        {business.legalName}. All rights reserved.
+        &copy; <span data-current-year>{buildYear}</span>{' '}{business.legalName}. All rights reserved.
       </p>
       <p>{business.brand} · Professional DJ in {business.location.region}</p>
     </div>

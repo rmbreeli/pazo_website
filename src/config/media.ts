@@ -75,8 +75,8 @@ export const hero = {
   /** Still image shown before/without the video. Currently a real DJ PAZO photo. */
   poster: '/images/hero/hero-poster.jpg',
   posterAlt: 'DJ PAZO mixing on a Pioneer DJ controller at an outdoor pavilion event',
-  /** Keeps the DJ in frame when the video/poster is cropped on phones. */
-  focus: '68% 45%',
+  /** Keeps the DJ's face in frame when the video/poster is cropped (x% y%). */
+  focus: '66% 6%',
 } as const;
 
 // ---------------------------------------------------------------------------

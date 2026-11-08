@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import Wordmark from './Wordmark.astro';
 import { gallery, hideMissingMedia, mediaCategories, type MediaItem, type TileLayout } from '@config/media';
 import { publicAssetExists } from '@lib/assets';
 
@@ -40,7 +39,6 @@ const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.po
             <button
               type="button"
               class="group absolute inset-0 block h-full w-full cursor-zoom-in overflow-hidden bg-charcoal text-left"
-              aria-label={`${isFilm ? 'Play video' : 'View larger photo'}: ${tile.alt}`}
               data-lightbox-open
               data-type={tile.type}
               data-src={tile.src}
@@ -64,9 +62,10 @@ const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.po
                   <Icon name="play" size={18} />
                 </span>
               )}
-              <span class="absolute right-4 bottom-4 left-4 flex items-end justify-between gap-3 text-ivory">
-                <span class="text-sm font-semibold">{tile.title}</span>
-                <span class="eyebrow hidden text-ivory/75 sm:inline">{category}</span>
+              <span class="absolute right-4 bottom-4 left-4 flex flex-col gap-1 text-ivory">
+                <span class="eyebrow hidden text-ivory/75 sm:block">{category}</span>
+                <span class="text-sm leading-snug font-semibold">{tile.title}</span>
+                <span class="sr-only">{isFilm ? '(play video)' : '(view larger)'}</span>
               </span>
             </button>
           ) : (
@@ -78,14 +77,11 @@ const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.po
               aria-hidden="true"
               data-media-placeholder={tile.src}
             >
-              <span class:list={['eyebrow', isFilm ? 'text-gold' : 'text-gold-ink']}>
+              <span class:list={['eyebrow', isFilm ? 'text-gold' : 'text-charcoal']}>
                 {category}
                 {isFilm && ' · Film'}
               </span>
-              <span class="flex items-end justify-between gap-3">
-                <span class="font-display text-lg leading-tight font-semibold tracking-[-0.02em] sm:text-2xl">{tile.title}</span>
-                <Wordmark tone={isFilm ? 'light' : 'dark'} class="text-sm opacity-30" />
-              </span>
+              <span class="font-display text-lg leading-tight font-semibold tracking-[-0.02em] sm:text-2xl">{tile.title}</span>
             </div>
           )}
         </li>

@@ -157,7 +157,7 @@
      BUTTONS — squared, confident, quiet. Arrow nudges on hover.
      ------------------------------------------------------------------------ */
   .btn {
-    @apply inline-flex items-center justify-center gap-3 font-sans text-sm font-bold tracking-[0.06em] uppercase;
+    @apply inline-flex items-center justify-center gap-3 text-center font-sans text-sm font-bold tracking-[0.06em] uppercase;
     min-height: 3.25rem;
     padding: 0.9rem 1.6rem;
     border: 1px solid transparent;

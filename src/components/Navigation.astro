@@ -53,13 +53,17 @@ const sectionLinks = navigation.filter((item) => item.id !== 'home');
       </button>
     </div>
   </nav>
+</header>
 
-  <!-- Mobile menu -->
-  <div
-    id="mobile-menu"
-    class="fixed inset-x-0 top-[var(--nav-height)] bottom-0 flex flex-col overflow-y-auto bg-ivory lg:hidden"
-    hidden
-  >
+<!--
+  Mobile menu lives OUTSIDE the header on purpose: the header's backdrop-filter
+  creates a containing block that would trap this fixed panel inside it.
+-->
+<div
+  id="mobile-menu"
+  class="fixed inset-x-0 top-[var(--nav-height)] bottom-0 z-50 flex flex-col overflow-y-auto bg-ivory lg:hidden"
+  hidden
+>
     <ul class="container-site flex flex-col border-t border-line pt-6">
       {
         navigation.map((item, index) => (
@@ -87,8 +91,7 @@ const sectionLinks = navigation.filter((item) => item.id !== 'home');
         <Icon name="instagram" size={16} />{business.socials[0].handle}
       </a>
     </div>
-  </div>
-</header>
+</div>
 
 <style>
   #menu-toggle[aria-expanded='true'] .menu-bar:first-child {

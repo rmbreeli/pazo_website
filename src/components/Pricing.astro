@@ -67,7 +67,7 @@ import { pricingCopy } from '@config/content';
               <p class="mt-6 border-t border-line pt-6 text-stone">{pkg.description}</p>
 
               <div class="mt-7 flex-1">
-                <p class="eyebrow text-ink">{base ? `Everything in ${base.name}, plus` : 'Includes'}</p>
+                <p class="eyebrow text-ink">{base ? `Everything in ${base.shortName ?? base.name}, plus` : 'Includes'}</p>
                 <ul class="mt-4 space-y-3">
                   {pkg.inclusions.map((item) => (
                     <li class="flex gap-3 text-[0.95rem] leading-snug">
@@ -79,7 +79,7 @@ import { pricingCopy } from '@config/content';
               </div>
 
               <Button
-                href="#contact"
+                href="#inquiry-form"
                 variant={pkg.featured ? 'primary' : 'secondary'}
                 class="mt-9 w-full"
                 data-package={pkg.id}
@@ -99,7 +99,7 @@ import { pricingCopy } from '@config/content';
     >
       <p class="max-w-2xl text-stone">{pricingNote}</p>
       <a
-        href="#contact"
+        href="#inquiry-form"
         data-package={extraPackageOptions[0].id}
         class="link-line inline-flex shrink-0 items-center gap-2 self-start py-2 font-semibold text-ink sm:self-auto"
       >

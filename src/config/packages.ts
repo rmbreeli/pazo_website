@@ -27,6 +27,8 @@ export interface Package {
   /** Small label above the name */
   category: string;
   name: string;
+  /** Short name used in phrases like "Everything in Essential, plus" */
+  shortName?: string;
   price: Price;
   /** Shown separately from the main price, e.g. a flat fee */
   additionalFee?: Price & { label: string };
@@ -45,11 +47,11 @@ export interface Package {
 export const packages: Package[] = [
   {
     id: 'private-events',
-    category: 'Private Events',
+    category: 'Hourly',
     name: 'Private Events',
     price: { amount: 100, per: 'hour' },
     additionalFee: { amount: 150, label: 'flat fee' },
-    duration: 'Hourly · typical events run 4–6 hours',
+    duration: 'Typical events run 4–6 hours',
     description:
       'Professional DJ entertainment tailored to your event, with music curated around your guests, atmosphere, and vision. For private parties, birthdays, corporate events, and other special occasions.',
     // EDITABLE: initial suggestions — confirm before launch.
@@ -66,6 +68,7 @@ export const packages: Package[] = [
     id: 'essential-wedding',
     category: 'Weddings',
     name: 'Essential Wedding Reception',
+    shortName: 'Essential',
     price: { amount: 795 },
     duration: '4 hours of reception coverage',
     description:

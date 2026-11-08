@@ -16,13 +16,13 @@ const hasPoster = publicAssetExists(hero.poster);
   <div class="container-site">
     <div class="grid gap-x-10 gap-y-8 lg:grid-cols-12 lg:items-end">
       <h1 id="hero-title" class="lg:col-span-8">
-        <span class="eyebrow flex items-center gap-4 text-stone" data-reveal>
-          <span class="text-ink">{business.brand}</span>
-          <span class="rule-gold" aria-hidden="true"></span>
-          <span>{heroCopy.eyebrow}</span>
+        <span class="eyebrow flex flex-wrap items-center gap-x-4 gap-y-1 text-stone" data-reveal>
+          <span class="whitespace-nowrap text-ink">{business.brand}</span>
+          <span class="rule-gold hidden sm:block" aria-hidden="true"></span>
+          <span class="whitespace-nowrap">{heroCopy.eyebrow}</span>
         </span>
         <span
-          class="display mt-6 block text-[clamp(2.35rem,11.4vw,6rem)] uppercase lg:mt-8 lg:text-[clamp(5rem,7.9vw,7.75rem)]"
+          class="display mt-6 block text-[clamp(2.35rem,12.4vw,6rem)] uppercase lg:mt-8 lg:text-[clamp(5rem,7.9vw,7.75rem)]"
           data-reveal
           style="--reveal-delay: 80ms"
         >
@@ -83,7 +83,7 @@ const hasPoster = publicAssetExists(hero.poster);
       <Wordmark
         tone="light"
         aria-hidden="true"
-        class="pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(6.5rem,31vw,27rem)] lg:left-10"
+        class="pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)] lg:left-10"
       />
 
       <ul class="absolute top-5 left-5 flex flex-wrap gap-x-5 gap-y-1 sm:top-7 sm:left-7" aria-label="Event specialties">
