@@ -11,17 +11,23 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('no broken images anywhere on the page', async ({ page }) => {
-  // Scroll through to trigger lazy loading.
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 500) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 25));
-    }
+  // Force lazy images to load, then wait for each one to decode.
+  // decode() resolves once the image is ready and rejects only if it is broken,
+  // so this never races against slow downloads the way checking `complete` does.
+  const broken = await page.locator('img').evaluateAll(async (imgs) => {
+    const results = await Promise.all(
+      (imgs as HTMLImageElement[]).map(async (img) => {
+        img.loading = 'eager';
+        try {
+          await img.decode();
+          return img.naturalWidth > 0 ? null : img.src;
+        } catch {
+          return img.src;
+        }
+      }),
+    );
+    return results.filter(Boolean);
   });
-  await page.waitForLoadState('networkidle');
-  const broken = await page.locator('img').evaluateAll((imgs) =>
-    (imgs as HTMLImageElement[]).filter((img) => !img.complete || img.naturalWidth === 0).map((img) => img.src),
-  );
   expect(broken).toEqual([]);
 });
 
