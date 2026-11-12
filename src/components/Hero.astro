@@ -38,78 +38,71 @@ const hasPoster = publicAssetExists(hero.poster);
         </div>
       </div>
     </div>
-  </div>
 
-  <!--
-    Cinematic media frame: full-bleed, edge to edge. Deliberately NOT animated (it holds the LCP image).
-    --edge lines the overlays up with the page content column at every screen width.
-  -->
-  <div
-    class="relative mt-12 aspect-[4/5] w-full overflow-hidden bg-ink [--edge:max(var(--gutter),calc((100%-90rem)/2+var(--gutter)))] sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9] lg:max-h-[85svh]"
-  >
-    {
-      hasPoster && (
-        <img
-          src={hero.poster}
-          alt={hero.posterAlt}
-          class="absolute inset-0 h-full w-full object-cover"
-          style={`object-position: ${hero.focus}`}
-          width="2000"
-          height="1333"
-          fetchpriority="high"
-          decoding="async"
-        />
-      )
-    }
-    {
-      videoSrc && (
-        <video
-          class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000"
-          style={`object-position: ${hero.focus}`}
-          muted
-          loop
-          playsinline
-          preload="none"
-          disablepictureinpicture
-          aria-hidden="true"
-          data-hero-video
-        >
-          {webmSrc && <source src={webmSrc} type="video/webm" />}
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      )
-    }
+    <!-- Cinematic media frame. Deliberately NOT animated: it holds the LCP image. -->
+    <div class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]">
+      {
+        hasPoster && (
+          <img
+            src={hero.poster}
+            alt={hero.posterAlt}
+            class="absolute inset-0 h-full w-full object-cover"
+            style={`object-position: ${hero.focus}`}
+            width="2000"
+            height="1333"
+            fetchpriority="high"
+            decoding="async"
+          />
+        )
+      }
+      {
+        videoSrc && (
+          <video
+            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000"
+            style={`object-position: ${hero.focus}`}
+            muted
+            loop
+            playsinline
+            preload="none"
+            disablepictureinpicture
+            aria-hidden="true"
+            data-hero-video
+          >
+            {webmSrc && <source src={webmSrc} type="video/webm" />}
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+        )
+      }
 
-    <!-- Legibility scrim + signature wordmark -->
-    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-ink/20" aria-hidden="true"></div>
-    <Wordmark
-      tone="light"
-      aria-hidden="true"
-      class="pointer-events-none absolute bottom-0 left-[var(--edge)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)]"
-    />
+      <!-- Legibility scrim + signature wordmark -->
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-ink/20" aria-hidden="true"></div>
+      <Wordmark
+        tone="light"
+        aria-hidden="true"
+        class="pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)] lg:left-10"
+      />
 
-    <ul class="absolute top-5 left-[var(--edge)] flex flex-wrap gap-x-5 gap-y-1 pr-5 sm:top-7" aria-label="Event specialties">
-      {heroCopy.highlights.map((item) => <li class="eyebrow text-ivory/90">{item}</li>)}
-    </ul>
+      <ul class="absolute top-5 left-5 flex flex-wrap gap-x-5 gap-y-1 sm:top-7 sm:left-7" aria-label="Event specialties">
+        {heroCopy.highlights.map((item) => <li class="eyebrow text-ivory/90">{item}</li>)}
+      </ul>
 
-    {
-      videoSrc && (
-        <button
-          type="button"
-          class="absolute right-[var(--edge)] bottom-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 text-ivory transition-colors hover:bg-ivory hover:text-ink sm:bottom-7"
-          aria-label="Play background video"
-          aria-pressed="false"
-          data-hero-toggle
-          hidden
-        >
-          <Icon name="play" size={16} class="hidden [[aria-pressed=false]_&]:block" />
-          <Icon name="pause" size={16} class="hidden [[aria-pressed=true]_&]:block" />
-        </button>
-      )
-    }
-  </div>
+      {
+        videoSrc && (
+          <button
+            type="button"
+            class="absolute right-4 bottom-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 text-ivory transition-colors hover:bg-ivory hover:text-ink sm:right-7 sm:bottom-7"
+            aria-label="Play background video"
+            aria-pressed="false"
+            data-hero-toggle
+            hidden
+          >
+            <Icon name="play" size={16} class="hidden [[aria-pressed=false]_&]:block" />
+            <Icon name="pause" size={16} class="hidden [[aria-pressed=true]_&]:block" />
+          </button>
+        )
+      }
+    </div>
 
-  <div class="container-site">
     <div class="flex flex-col gap-3 border-b border-line py-6 text-sm text-stone sm:flex-row sm:items-center sm:justify-between">
       <p>
         Based in <strong class="font-semibold text-ink">{business.location.region}</strong>
