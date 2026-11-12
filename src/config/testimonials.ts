@@ -27,7 +27,7 @@ export const testimonials: Testimonial[] = [
     quote:
       'DJ Pazo absolutely killed it at our wedding. The energy was incredible and the dance floor stayed moving all night. Highly recommend!',
     name: 'Wendy Echeverria',
-    context: 'Wendy & Troy · Wedding',
+    context: 'Wendy & Troy\'s · Wedding',
     featured: true,
   },
   {
