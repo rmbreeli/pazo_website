@@ -1,0 +1,296 @@
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/manrope';
+@import 'tailwindcss';
+
+/* ==========================================================================
+   DESIGN TOKENS
+   Warm ivory editorial base, near-black type, champagne gold used sparingly.
+   Contrast notes (WCAG AA):
+     stone  #6B675F on ivory  = 5.2:1  (secondary text)
+     gold-ink #826838 on ivory = 4.9:1 (the only gold allowed as small text on light)
+     gold   #C6AA78 on ink    = 8.0:1  (gold text on dark is fine)
+   ========================================================================== */
+@theme {
+  --color-ivory: #f8f7f3;
+  --color-paper: #ffffff;
+  --color-ink: #171717;
+  --color-charcoal: #292929;
+  --color-gold: #c6aa78;
+  --color-gold-ink: #826838;
+  --color-stone: #6b675f;
+  --color-mist: #eae7e0;
+  --color-line: #dcd8cf;
+  --color-line-dark: #3a3a3a;
+  --color-danger: #a1302a;
+
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+@layer base {
+  :root {
+    --nav-height: 4.25rem;
+    --gutter: clamp(1.25rem, 4.5vw, 3.5rem);
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-height);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-ink antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  .on-dark :focus-visible {
+    outline-color: var(--color-gold);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   LAYOUT UTILITIES
+   ========================================================================== */
+@utility container-site {
+  width: 100%;
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-space {
+  padding-block: clamp(5rem, 11vw, 9.5rem);
+}
+
+/* ==========================================================================
+   TYPOGRAPHY COMPONENTS
+   ========================================================================== */
+@layer components {
+  .eyebrow {
+    @apply font-sans text-[0.72rem] font-bold tracking-[0.2em] uppercase;
+  }
+
+  .display {
+    @apply font-display font-bold;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+  }
+
+  .heading-xl {
+    @apply font-display font-semibold;
+    font-size: clamp(2.25rem, 5.2vw, 4.75rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  .heading-lg {
+    @apply font-display font-semibold;
+    font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+
+  .lede {
+    font-size: clamp(1.0625rem, 1.3vw, 1.25rem);
+    line-height: 1.6;
+  }
+
+  .wordmark {
+    @apply font-display font-bold uppercase;
+    letter-spacing: -0.04em;
+    line-height: 0.8;
+  }
+
+  /* Gold hairline used to open sections */
+  .rule-gold {
+    display: block;
+    width: 3rem;
+    height: 1px;
+    background: var(--color-gold);
+  }
+
+  /* ------------------------------------------------------------------------
+     BUTTONS — squared, confident, quiet. Arrow nudges on hover.
+     ------------------------------------------------------------------------ */
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 text-center font-sans text-sm font-bold tracking-[0.06em] uppercase;
+    min-height: 3.25rem;
+    padding: 0.9rem 1.6rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    transition:
+      background-color 0.25s var(--ease-out-soft),
+      color 0.25s var(--ease-out-soft),
+      border-color 0.25s var(--ease-out-soft);
+  }
+
+  .btn .btn-arrow {
+    transition: transform 0.3s var(--ease-out-soft);
+  }
+
+  .btn:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  .btn-primary {
+    @apply bg-ink text-ivory;
+  }
+  .btn-primary:hover {
+    @apply bg-charcoal;
+    border-color: var(--color-gold);
+  }
+
+  .btn-secondary {
+    @apply border-ink bg-transparent text-ink;
+  }
+  .btn-secondary:hover {
+    @apply bg-ink text-ivory;
+  }
+
+  .btn-gold {
+    @apply bg-gold text-ink;
+  }
+  .btn-gold:hover {
+    @apply bg-ivory;
+  }
+
+  .btn-ghost-light {
+    @apply border-ivory/40 bg-transparent text-ivory;
+  }
+  .btn-ghost-light:hover {
+    @apply border-ivory bg-ivory text-ink;
+  }
+
+  .btn[disabled],
+  .btn[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Text link with animated underline */
+  .link-line {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.35s var(--ease-out-soft);
+  }
+  .link-line:hover,
+  .link-line:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* ------------------------------------------------------------------------
+     FORM CONTROLS — underline fields on white card
+     ------------------------------------------------------------------------ */
+  .field-label {
+    @apply mb-2 block text-[0.72rem] font-bold tracking-[0.16em] text-ink uppercase;
+  }
+
+  .field-control {
+    @apply block w-full rounded-none border-0 border-b bg-transparent px-0 py-3 text-base text-ink;
+    border-color: var(--color-line);
+    transition: border-color 0.2s ease;
+  }
+  .field-control::placeholder {
+    color: #8f8a81;
+  }
+  .field-control:hover {
+    border-color: var(--color-stone);
+  }
+  .field-control:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 1px 0 0 var(--color-ink);
+  }
+  .field-control:focus-visible {
+    outline: none;
+  }
+  .field-control[aria-invalid='true'] {
+    border-color: var(--color-danger);
+    box-shadow: 0 1px 0 0 var(--color-danger);
+  }
+  select.field-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath stroke='%23171717' stroke-width='1.5' d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.25rem center;
+    padding-right: 1.75rem;
+  }
+  textarea.field-control {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .field-error {
+    @apply mt-2 text-sm font-medium;
+    color: var(--color-danger);
+  }
+}
+
+/* ==========================================================================
+   REVEAL ON SCROLL — only hides content when JS is running, so the page is
+   fully readable without JavaScript. Disabled for reduced motion.
+   ========================================================================== */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.9s var(--ease-out-soft),
+    transform 0.9s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,70 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import ContactForm from './ContactForm.astro';
+import Icon from './Icon.astro';
+import { contactCopy } from '@config/content';
+import { business, contactLinks } from '@config/business';
+
+const channels = [
+  { label: 'Email', value: business.contact.email, href: contactLinks.email, icon: 'mail' as const },
+  { label: 'Phone', value: business.contact.phoneDisplay, href: contactLinks.phone, icon: 'phone' as const },
+  {
+    label: 'Instagram',
+    value: business.socials[0].handle,
+    href: contactLinks.instagram,
+    icon: 'instagram' as const,
+    external: true,
+  },
+];
+---
+
+<section id="contact" aria-labelledby="contact-title">
+  <div class="container-site section-space">
+    <div class="grid gap-14 lg:grid-cols-12 lg:gap-10">
+      <div class="lg:col-span-5">
+        <SectionHeading id="contact-title" index={contactCopy.index} label={contactCopy.label} headline={contactCopy.headline}>
+          <p class="lede mt-8 max-w-md text-stone">{contactCopy.intro}</p>
+        </SectionHeading>
+
+        <ul class="mt-12 border-t border-line" data-reveal>
+          {
+            channels.map((channel) => (
+              <li class="border-b border-line">
+                <a
+                  href={channel.href}
+                  class="group flex items-center justify-between gap-4 py-5"
+                  {...(channel.external && { target: '_blank', rel: 'noopener noreferrer' })}
+                >
+                  <span class="flex items-center gap-4">
+                    <Icon name={channel.icon} size={18} class="text-gold-ink" />
+                    <span>
+                      <span class="eyebrow block text-stone">{channel.label}</span>
+                      <span class="mt-1 block font-display text-[clamp(1.1rem,1.8vw,1.35rem)] font-medium tracking-[-0.01em] break-all text-ink">
+                        {channel.value}
+                      </span>
+                    </span>
+                  </span>
+                  <Icon
+                    name={channel.external ? 'arrow-up-right' : 'arrow-right'}
+                    size={18}
+                    class="text-stone transition-transform group-hover:translate-x-1 group-hover:text-ink"
+                  />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="mt-8 text-sm text-stone" data-reveal>
+          {business.legalName} · {business.location.region}
+          <br />
+          {business.facts.languages.join(' & ')} · {business.location.travelNote}
+        </p>
+      </div>
+
+      <div class="lg:col-span-7" data-reveal style="--reveal-delay: 120ms">
+        <ContactForm />
+      </div>
+    </div>
+  </div>
+</section>

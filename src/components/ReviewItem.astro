@@ -1,0 +1,20 @@
+---
+import { attributionFor, type Testimonial } from '@config/testimonials';
+
+interface Props {
+  testimonial: Testimonial;
+}
+
+const { testimonial: t } = Astro.props;
+const attribution = attributionFor(t);
+---
+
+<figure>
+  <blockquote>
+    <p class="text-[1.075rem] leading-relaxed text-ink">&ldquo;{t.quote}&rdquo;</p>
+  </blockquote>
+  <figcaption class="mt-4 text-sm">
+    <span class="font-semibold text-ink">{t.name}</span>
+    {attribution && <span class="text-stone"> · {attribution}</span>}
+  </figcaption>
+</figure>

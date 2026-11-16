@@ -1,0 +1,93 @@
+---
+import Wordmark from './Wordmark.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { navigation, closingCopy } from '@config/content';
+import { business, contactLinks } from '@config/business';
+
+const buildYear = new Date().getFullYear();
+---
+
+<footer class="on-dark overflow-hidden bg-ink text-ivory">
+  <div class="container-site pt-[clamp(4.5rem,9vw,7.5rem)]">
+    <!-- Closing CTA -->
+    <div class="flex flex-col gap-10 border-b border-line-dark pb-14 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="eyebrow flex items-center gap-4 text-ivory/70">
+          <span class="rule-gold" aria-hidden="true"></span>Booking now
+        </p>
+        <p class="heading-xl mt-6 max-w-3xl text-ivory">{closingCopy.headline}</p>
+      </div>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <Button href={contactLinks.email} variant="gold" arrow="right">Email DJ PAZO</Button>
+        <Button href={contactLinks.phone} variant="ghost-light" arrow={false}>Call {business.contact.phoneDisplay}</Button>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-12">
+      <nav aria-label="Footer" class="lg:col-span-4">
+        <p class="eyebrow text-gold">Explore</p>
+        <ul class="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-ivory/80">
+          {
+            navigation.map((item) => (
+              <li>
+                <a href={`#${item.id}`} class="link-line py-1 hover:text-ivory">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="lg:col-span-4">
+        <p class="eyebrow text-gold">Contact</p>
+        <ul class="mt-5 space-y-3 text-ivory/80">
+          <li><a href={contactLinks.email} class="link-line py-1 break-all hover:text-ivory">{business.contact.email}</a></li>
+          <li><a href={contactLinks.phone} class="link-line py-1 hover:text-ivory">{business.contact.phoneDisplay}</a></li>
+          <li class="text-ivory/60">{business.location.region}</li>
+        </ul>
+      </div>
+
+      <div class="lg:col-span-4">
+        <p class="eyebrow text-gold">Follow</p>
+        <ul class="mt-5 flex gap-3">
+          {
+            business.socials.map((social) => (
+              <li>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line-dark text-ivory/80 transition-colors hover:border-gold hover:text-gold"
+                >
+                  <Icon name={social.icon} size={18} label={`${business.brand} on ${social.label} (opens in a new tab)`} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature -->
+  <div class="container-site" aria-hidden="true">
+    <Wordmark tone="light" class="-ml-[0.04em] block translate-y-[12%] text-[clamp(6rem,41.5vw,38rem)] leading-[0.75]" />
+  </div>
+
+  <div class="relative border-t border-line-dark bg-ink">
+    <div class="container-site flex flex-col gap-2 py-6 text-xs text-ivory/70 sm:flex-row sm:justify-between">
+      <p>
+        &copy; <span data-current-year>{buildYear}</span>{' '}{business.legalName}. All rights reserved.
+      </p>
+      <p>{business.brand} · Professional DJ in {business.location.region}</p>
+    </div>
+  </div>
+</footer>
+
+<script is:inline>
+  // Keep the copyright year current even if the site has not been rebuilt.
+  document.querySelectorAll('[data-current-year]').forEach((el) => (el.textContent = new Date().getFullYear()));
+</script>

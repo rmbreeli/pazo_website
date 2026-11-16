@@ -1,0 +1,159 @@
+---
+import Icon from './Icon.astro';
+import { gallery, hideMissingMedia, mediaCategories, type MediaItem, type TileLayout } from '@config/media';
+import { publicAssetExists } from '@lib/assets';
+
+const spans: Record<TileLayout, string> = {
+  feature: 'col-span-2 row-span-2',
+  wide: 'col-span-2',
+  tall: 'row-span-2',
+  standard: '',
+};
+
+type Tile = MediaItem & { available: boolean; posterAvailable: boolean };
+
+const tiles: Tile[] = gallery
+  .map((item) => ({
+    ...item,
+    available: publicAssetExists(item.src),
+    posterAvailable: item.type === 'video' && publicAssetExists(item.poster),
+  }))
+  .filter((tile) => tile.available || !hideMissingMedia);
+
+const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.posterAvailable ? tile.poster : undefined);
+---
+
+<ul
+  class="grid auto-rows-[clamp(9.5rem,21vw,17.5rem)] grid-flow-dense grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4"
+  aria-label="Photo and video gallery"
+>
+  {
+    tiles.map((tile, index) => {
+      const category = mediaCategories[tile.category].label;
+      const thumbnail = thumbnailFor(tile);
+      const isFilm = tile.type === 'video';
+
+      return (
+        <li class:list={['relative overflow-hidden', spans[tile.layout]]} data-reveal style={`--reveal-delay: ${(index % 4) * 60}ms`}>
+          {tile.available ? (
+            <button
+              type="button"
+              class="group absolute inset-0 block h-full w-full cursor-zoom-in overflow-hidden bg-charcoal text-left"
+              data-lightbox-open
+              data-type={tile.type}
+              data-src={tile.src}
+              data-poster={isFilm && tile.posterAvailable ? tile.poster : undefined}
+              data-alt={tile.alt}
+              data-title={`${tile.title} · ${category}`}
+            >
+              {thumbnail && (
+                <img
+                  src={thumbnail}
+                  alt={tile.alt}
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-full object-cover transition-transform duration-[1.2s] ease-[var(--ease-out-soft)] group-hover:scale-[1.035]"
+                  style={tile.focus && `object-position: ${tile.focus}`}
+                />
+              )}
+              <span class="absolute inset-0 bg-gradient-to-t from-ink/65 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
+              {isFilm && (
+                <span class="absolute top-1/2 left-1/2 inline-flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ivory/60 text-ivory backdrop-blur-sm transition-colors group-hover:bg-ivory group-hover:text-ink">
+                  <Icon name="play" size={18} />
+                </span>
+              )}
+              <span class="absolute right-4 bottom-4 left-4 flex flex-col gap-1 text-ivory">
+                <span class="eyebrow hidden text-ivory/75 sm:block">{category}</span>
+                <span class="text-sm leading-snug font-semibold">{tile.title}</span>
+                <span class="sr-only">{isFilm ? '(play video)' : '(view larger)'}</span>
+              </span>
+            </button>
+          ) : (
+            <div
+              class:list={[
+                'flex h-full flex-col justify-between p-4 sm:p-6',
+                isFilm ? 'bg-charcoal text-ivory' : 'bg-mist text-ink',
+              ]}
+              aria-hidden="true"
+              data-media-placeholder={tile.src}
+            >
+              <span class:list={['eyebrow', isFilm ? 'text-gold' : 'text-charcoal']}>
+                {category}
+                {isFilm && ' · Film'}
+              </span>
+              <span class="font-display text-lg leading-tight font-semibold tracking-[-0.02em] sm:text-2xl">{tile.title}</span>
+            </div>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
+
+<!-- Lightbox (native dialog: focus trap, Escape to close, focus restore) -->
+<dialog
+  id="lightbox"
+  class="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-ink/92"
+  aria-label="Media viewer"
+>
+  <div class="flex h-full w-full flex-col p-4 sm:p-8" data-lightbox-backdrop>
+    <div class="flex items-center justify-between gap-4 text-ivory">
+      <p class="eyebrow text-ivory/80" data-lightbox-caption></p>
+      <button
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 transition-colors hover:bg-ivory hover:text-ink focus-visible:outline-gold"
+        data-lightbox-close
+      >
+        <Icon name="close" size={18} label="Close media viewer" />
+      </button>
+    </div>
+    <div class="flex min-h-0 flex-1 items-center justify-center pt-4" data-lightbox-stage></div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement;
+  const stage = dialog.querySelector<HTMLElement>('[data-lightbox-stage]')!;
+  const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]')!;
+
+  const mediaClasses = 'max-h-full max-w-full object-contain';
+
+  const open = (trigger: HTMLElement) => {
+    const { type, src, poster, alt, title } = trigger.dataset;
+    if (!src) return;
+    stage.replaceChildren();
+
+    if (type === 'video') {
+      // The video file is only requested now, when the visitor asks for it.
+      const video = Object.assign(document.createElement('video'), {
+        src,
+        controls: true,
+        autoplay: true,
+        playsInline: true,
+        className: mediaClasses,
+      });
+      if (poster) video.poster = poster;
+      video.setAttribute('aria-label', alt ?? '');
+      stage.append(video);
+    } else {
+      const img = Object.assign(document.createElement('img'), { src, alt: alt ?? '', className: mediaClasses });
+      stage.append(img);
+    }
+
+    caption.textContent = title ?? '';
+    dialog.showModal();
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-lightbox-open]').forEach((trigger) =>
+    trigger.addEventListener('click', () => open(trigger)),
+  );
+
+  dialog.querySelector('[data-lightbox-close]')!.addEventListener('click', () => dialog.close());
+  // Clicking the dark area (not the media itself) closes the viewer.
+  dialog.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (target === dialog || target.matches('[data-lightbox-backdrop], [data-lightbox-stage]')) dialog.close();
+  });
+  // Tear down on close so videos stop playing and stop downloading.
+  dialog.addEventListener('close', () => stage.replaceChildren());
+</script>

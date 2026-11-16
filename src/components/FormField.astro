@@ -1,0 +1,25 @@
+---
+/**
+ * Label + control + error message. The control goes in the slot and should
+ * set `aria-describedby={`${id}-error`}` so errors are announced.
+ */
+interface Props {
+  id: string;
+  label: string;
+  required?: boolean;
+  optionalHint?: boolean;
+  class?: string;
+}
+
+const { id, label, required = false, optionalHint = false, class: className } = Astro.props;
+---
+
+<div class={className} data-field>
+  <label for={id} class="field-label">
+    {label}
+    {required && <span class="text-gold-ink" aria-hidden="true"> *</span>}
+    {optionalHint && <span class="ml-1 font-medium tracking-normal text-stone normal-case">(optional)</span>}
+  </label>
+  <slot />
+  <p id={`${id}-error`} class="field-error" data-error-for={id} hidden></p>
+</div>

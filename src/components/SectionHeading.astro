@@ -1,0 +1,29 @@
+---
+/**
+ * Consistent section opener: index number + gold hairline + label,
+ * followed by the section's h2. Tone adapts for dark bands.
+ */
+interface Props {
+  index: string;
+  label: string;
+  headline: string;
+  id?: string;
+  tone?: 'dark' | 'light';
+  class?: string;
+}
+
+const { index, label, headline, id, tone = 'dark', class: className } = Astro.props;
+const muted = tone === 'light' ? 'text-ivory/70' : 'text-stone';
+---
+
+<header class:list={['max-w-4xl', className]} data-reveal>
+  <p class:list={['eyebrow flex items-center gap-4', muted]}>
+    <span class={tone === 'light' ? 'text-gold' : 'text-gold-ink'}>{index}</span>
+    <span class="rule-gold" aria-hidden="true"></span>
+    <span>{label}</span>
+  </p>
+  <h2 id={id} class:list={['heading-xl mt-6', tone === 'light' ? 'text-ivory' : 'text-ink']}>
+    {headline}
+  </h2>
+  <slot />
+</header>
