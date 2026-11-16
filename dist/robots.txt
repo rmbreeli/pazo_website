@@ -1,0 +1,10 @@
+# DJ PAZO crawler guidance
+User-agent: *
+Allow: /
+
+# AI-readable summaries
+# https://www.djpazo.com/llms.txt
+# https://www.djpazo.com/llms-full.txt
+# https://www.djpazo.com/agents.md
+
+Sitemap: https://www.djpazo.com/sitemap.xml
