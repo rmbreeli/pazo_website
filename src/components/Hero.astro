@@ -1,0 +1,174 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import Wordmark from './Wordmark.astro';
+import { heroCopy } from '@config/content';
+import { business } from '@config/business';
+import { hero } from '@config/media';
+import { firstExistingAsset, publicAssetExists } from '@lib/assets';
+
+const videoSrc = firstExistingAsset(hero.videoCandidates);
+const webmSrc = publicAssetExists(hero.videoWebm) ? hero.videoWebm : undefined;
+const hasPoster = publicAssetExists(hero.poster);
+---
+
+<section id="home" aria-labelledby="hero-title" class="relative pt-[calc(var(--nav-height)+clamp(2rem,6vw,4.5rem))]">
+  <div class="container-site">
+    <div class="grid gap-x-10 gap-y-8 lg:grid-cols-12 lg:items-end">
+      <h1 id="hero-title" class="lg:col-span-8">
+        <span class="eyebrow flex flex-wrap items-center gap-x-4 gap-y-1 text-stone" data-reveal>
+          <span class="whitespace-nowrap text-ink">{business.brand}</span>
+          <span class="rule-gold hidden sm:block" aria-hidden="true"></span>
+          <span class="whitespace-nowrap">{heroCopy.eyebrow}</span>
+        </span>
+        <span
+          class="display mt-6 block text-[clamp(2.35rem,12.4vw,6rem)] uppercase lg:mt-8 lg:text-[clamp(5rem,7.9vw,7.75rem)]"
+          data-reveal
+          style="--reveal-delay: 80ms"
+        >
+          {heroCopy.headline.map((line) => <span class="block">{line}</span>)}
+        </span>
+      </h1>
+
+      <div class="lg:col-span-4 lg:pb-2" data-reveal style="--reveal-delay: 160ms">
+        <p class="lede max-w-md text-stone">{heroCopy.supporting}</p>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+          <Button href="#packages" variant="primary">{heroCopy.primaryCta}</Button>
+          <Button href="#contact" variant="secondary" arrow={false}>{heroCopy.secondaryCta}</Button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cinematic media frame. Deliberately NOT animated: it holds the LCP image. -->
+    <div class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]">
+      {
+        hasPoster && (
+          <img
+            src={hero.poster}
+            alt={hero.posterAlt}
+            class="absolute inset-0 h-full w-full object-cover"
+            style={`object-position: ${hero.focus}`}
+            width="2000"
+            height="1333"
+            fetchpriority="high"
+            decoding="async"
+          />
+        )
+      }
+      {
+        videoSrc && (
+          <video
+            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000"
+            style={`object-position: ${hero.focus}`}
+            muted
+            loop
+            playsinline
+            preload="none"
+            disablepictureinpicture
+            aria-hidden="true"
+            data-hero-video
+          >
+            {webmSrc && <source src={webmSrc} type="video/webm" />}
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+        )
+      }
+
+      <!-- Legibility scrim + signature wordmark -->
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-ink/20" aria-hidden="true"></div>
+      <Wordmark
+        tone="light"
+        aria-hidden="true"
+        class="pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)] lg:left-10"
+      />
+
+      <ul class="absolute top-5 left-5 flex flex-wrap gap-x-5 gap-y-1 sm:top-7 sm:left-7" aria-label="Event specialties">
+        {heroCopy.highlights.map((item) => <li class="eyebrow text-ivory/90">{item}</li>)}
+      </ul>
+
+      {
+        videoSrc && (
+          <button
+            type="button"
+            class="absolute right-4 bottom-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 text-ivory transition-colors hover:bg-ivory hover:text-ink sm:right-7 sm:bottom-7"
+            aria-label="Play background video"
+            aria-pressed="false"
+            data-hero-toggle
+            hidden
+          >
+            <Icon name="play" size={16} class="hidden [[aria-pressed=false]_&]:block" />
+            <Icon name="pause" size={16} class="hidden [[aria-pressed=true]_&]:block" />
+          </button>
+        )
+      }
+    </div>
+
+    <div class="flex flex-col gap-3 border-b border-line py-6 text-sm text-stone sm:flex-row sm:items-center sm:justify-between">
+      <p>
+        Based in <strong class="font-semibold text-ink">{business.location.region}</strong>
+        <span class="mx-2 text-gold" aria-hidden="true">/</span>
+        Available throughout Arkansas &amp; Beyond
+      </p>
+      <a href="#sound" class="link-line inline-flex items-center gap-2 self-start font-semibold text-ink sm:self-auto">
+        Discover the sound <Icon name="arrow-down" size={15} />
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-hero-toggle]');
+
+  if (video && toggle) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    let userPaused = reduceMotion;
+    let started = false;
+
+    const sync = (playing: boolean) => {
+      toggle.setAttribute('aria-pressed', String(playing));
+      toggle.setAttribute('aria-label', playing ? 'Pause background video' : 'Play background video');
+    };
+
+    const play = () => video.play().then(() => sync(true)).catch(() => sync(false));
+
+    // Reveal the video only once frames are actually playing; the poster image stays underneath.
+    video.addEventListener('playing', () => video.classList.remove('opacity-0'), { once: true });
+    video.querySelector('source:last-of-type')?.addEventListener('error', () => {
+      toggle.hidden = true;
+      video.remove();
+    });
+
+    toggle.hidden = false;
+    toggle.addEventListener('click', () => {
+      started = true;
+      userPaused = !video.paused;
+      if (video.paused) play();
+      else {
+        video.pause();
+        sync(false);
+      }
+    });
+
+    // Pause off-screen to save battery; resume unless the visitor paused it.
+    new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) video.pause();
+      else if (started && !userPaused) play();
+    }).observe(video);
+
+    // Never compete with the initial page load. Respect reduced motion & data saver.
+    if (!reduceMotion && !saveData) {
+      const start = () => {
+        started = true;
+        video.preload = 'auto';
+        if (!userPaused) play();
+      };
+      if (document.readyState === 'complete') start();
+      else window.addEventListener('load', start, { once: true });
+    } else {
+      userPaused = true;
+      sync(false);
+    }
+  }
+</script>

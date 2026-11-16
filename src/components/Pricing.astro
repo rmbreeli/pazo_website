@@ -1,0 +1,110 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { packages, pricingNote, findPackage, extraPackageOptions, formatDollars as dollars } from '@config/packages';
+import { pricingCopy } from '@config/content';
+---
+
+<section id="packages" aria-labelledby="packages-title">
+  <div class="container-site section-space">
+    <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-10">
+      <SectionHeading
+        id="packages-title"
+        index={pricingCopy.index}
+        label={pricingCopy.label}
+        headline={pricingCopy.headline}
+        class="lg:col-span-8"
+      />
+      <p class="max-w-md text-stone lg:col-span-4 lg:pb-2" data-reveal>{pricingCopy.intro}</p>
+    </div>
+
+    <ul class="mt-14 grid gap-5 lg:mt-20 lg:grid-cols-3 lg:gap-6">
+      {
+        packages.map((pkg, index) => {
+          const base = pkg.includesEverythingFrom && findPackage(pkg.includesEverythingFrom);
+          return (
+            <li
+              class:list={[
+                'relative flex flex-col bg-paper p-7 sm:p-9',
+                pkg.featured ? 'border border-gold shadow-[0_30px_60px_-40px_rgba(23,23,23,0.35)]' : 'border border-line',
+              ]}
+              data-reveal
+              style={`--reveal-delay: ${index * 90}ms`}
+              aria-labelledby={`package-${pkg.id}`}
+            >
+              {pkg.featured && <span class="absolute inset-x-0 top-0 h-[3px] bg-gold" aria-hidden="true" />}
+
+              <div class="flex min-h-7 flex-wrap items-center justify-between gap-2">
+                <p class="eyebrow text-stone">{pkg.category}</p>
+                {pkg.featured && pkg.featuredLabel && (
+                  <p class="bg-gold px-2.5 py-1 text-[0.65rem] font-bold tracking-[0.14em] text-ink uppercase">
+                    {pkg.featuredLabel}
+                  </p>
+                )}
+              </div>
+
+              <h3 id={`package-${pkg.id}`} class="mt-5 text-[1.7rem] leading-tight font-semibold tracking-[-0.03em]">
+                {pkg.name}
+              </h3>
+
+              <div class="mt-7">
+                <p class="flex items-baseline gap-2">
+                  <span class="font-display text-[clamp(3rem,5vw,3.75rem)] leading-none font-semibold tracking-[-0.045em]">
+                    {dollars(pkg.price.amount)}
+                  </span>
+                  {pkg.price.per && <span class="font-medium text-stone">/ {pkg.price.per}</span>}
+                </p>
+                {pkg.additionalFee && (
+                  <p class="mt-3 inline-flex items-baseline gap-2 border border-line px-3 py-1.5 text-sm">
+                    <span class="font-display text-base font-semibold">+ {dollars(pkg.additionalFee.amount)}</span>
+                    <span class="text-stone">{pkg.additionalFee.label}</span>
+                  </p>
+                )}
+                <p class="mt-4 text-sm font-semibold text-ink">{pkg.duration}</p>
+              </div>
+
+              <p class="mt-6 border-t border-line pt-6 text-stone">{pkg.description}</p>
+
+              <div class="mt-7 flex-1">
+                <p class="eyebrow text-ink">{base ? `Everything in ${base.shortName ?? base.name}, plus` : 'Includes'}</p>
+                <ul class="mt-4 space-y-3">
+                  {pkg.inclusions.map((item) => (
+                    <li class="flex gap-3 text-[0.95rem] leading-snug">
+                      <Icon name="check" size={17} class="mt-0.5 text-gold-ink" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Button
+                href="#inquiry-form"
+                variant={pkg.featured ? 'primary' : 'secondary'}
+                class="mt-9 w-full"
+                data-package={pkg.id}
+                aria-label={`${pkg.ctaLabel}: ${pkg.name}`}
+              >
+                {pkg.ctaLabel}
+              </Button>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <div
+      class="mt-10 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-10"
+      data-reveal
+    >
+      <p class="max-w-2xl text-stone">{pricingNote}</p>
+      <a
+        href="#inquiry-form"
+        data-package={extraPackageOptions[0].id}
+        class="link-line inline-flex shrink-0 items-center gap-2 self-start py-2 font-semibold text-ink sm:self-auto"
+      >
+        Plan a custom event <Icon name="arrow-right" size={16} />
+      </a>
+    </div>
+  </div>
+</section>

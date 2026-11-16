@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+import { listen } from '@config/media';
+import { reviewsCopy } from '@config/content';
+import { publicAssetExists } from '@lib/assets';
+---
+
+<div class="grid gap-10 lg:grid-cols-12 lg:gap-10">
+  <div class="lg:col-span-4" data-reveal>
+    <p class="eyebrow flex items-center gap-4 text-stone">
+      <span class="rule-gold" aria-hidden="true"></span>{reviewsCopy.listenLabel}
+    </p>
+    <h3 class="heading-lg mt-6">{reviewsCopy.listenHeadline}</h3>
+    <p class="mt-4 max-w-sm text-stone">{reviewsCopy.listenIntro}</p>
+  </div>
+
+  <ul class="grid gap-5 sm:grid-cols-3 sm:gap-5 lg:col-span-8">
+    {
+      listen.map((item, index) => (
+        <li data-reveal style={`--reveal-delay: ${index * 80}ms`}>
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group flex items-center gap-4 sm:block"
+          >
+            <span class="relative block aspect-square w-24 shrink-0 overflow-hidden bg-ink sm:aspect-[4/3] sm:w-auto">
+              {publicAssetExists(item.thumbnail) && (
+                <img
+                  src={item.thumbnail}
+                  alt={item.alt}
+                  loading="lazy"
+                  decoding="async"
+                  width="900"
+                  height="506"
+                  class="h-full w-full object-cover opacity-90 transition-[transform,opacity] duration-700 group-hover:scale-[1.04] group-hover:opacity-100"
+                />
+              )}
+              <span class="absolute top-2 left-2 hidden bg-ivory px-2 py-1 text-[0.65rem] font-bold tracking-[0.16em] text-ink uppercase sm:top-3 sm:left-3 sm:block">
+                {item.platform}
+              </span>
+            </span>
+            <span class="flex flex-1 items-start justify-between gap-3 sm:mt-4">
+              <span>
+                <span class="block font-display text-lg font-semibold tracking-[-0.02em]">{item.title}</span>
+                <span class="mt-0.5 block text-sm text-stone">
+                  <span class="sm:hidden">{item.platform} · </span>{item.kind}
+                  <span class="sr-only"> on {item.platform} (opens in a new tab)</span>
+                </span>
+              </span>
+              <Icon
+                name="arrow-up-right"
+                size={18}
+                class="mt-1 text-stone transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink"
+              />
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>

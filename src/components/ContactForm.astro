@@ -1,0 +1,117 @@
+---
+import FormField from './FormField.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { business, contactLinks, formConfig } from '@config/business';
+import { packages, extraPackageOptions } from '@config/packages';
+import { contactCopy } from '@config/content';
+
+const eventTypes = [...business.services, 'Other'];
+const guestCounts = ['Under 50', '50–100', '100–200', '200–300', '300+', 'Not sure yet'];
+---
+
+<div class="relative border border-line bg-paper p-6 sm:p-10">
+  <form
+    id="inquiry-form"
+    action={formConfig.endpoint}
+    method="POST"
+    class="grid gap-x-8 gap-y-7 sm:grid-cols-2"
+    aria-describedby="form-required-note"
+  >
+    <input type="hidden" name="access_key" value={formConfig.accessKey} />
+    <input type="hidden" name="subject" value={formConfig.subject} />
+    <input type="hidden" name="from_name" value={formConfig.fromName} />
+    <!-- Spam honeypot: humans never see or fill this. -->
+    <input type="checkbox" name="botcheck" class="hidden" style="display: none" tabindex="-1" autocomplete="off" />
+
+    <FormField id="name" label="Name" required>
+      <input id="name" name="name" type="text" class="field-control" autocomplete="name" required maxlength="120" aria-describedby="name-error" />
+    </FormField>
+
+    <FormField id="email" label="Email" required>
+      <input id="email" name="email" type="email" class="field-control" autocomplete="email" inputmode="email" required maxlength="160" aria-describedby="email-error" />
+    </FormField>
+
+    <FormField id="phone" label="Phone" optionalHint>
+      <input id="phone" name="phone" type="tel" class="field-control" autocomplete="tel" inputmode="tel" maxlength="30" aria-describedby="phone-error" />
+    </FormField>
+
+    <FormField id="event_type" label="Event type" required>
+      <select id="event_type" name="event_type" class="field-control" required aria-describedby="event_type-error">
+        <option value="">Select an event type</option>
+        {eventTypes.map((type) => <option value={type}>{type}</option>)}
+      </select>
+    </FormField>
+
+    <FormField id="event_date" label="Event date" optionalHint>
+      <input id="event_date" name="event_date" type="date" class="field-control" aria-describedby="event_date-error" />
+    </FormField>
+
+    <FormField id="event_location" label="Event location" optionalHint>
+      <input id="event_location" name="event_location" type="text" class="field-control" placeholder="Venue or city" maxlength="160" aria-describedby="event_location-error" />
+    </FormField>
+
+    <FormField id="guest_count" label="Estimated guests" optionalHint>
+      <select id="guest_count" name="guest_count" class="field-control" aria-describedby="guest_count-error">
+        <option value="">Select a range</option>
+        {guestCounts.map((range) => <option value={range}>{range}</option>)}
+      </select>
+    </FormField>
+
+    <FormField id="package" label="Package of interest" optionalHint>
+      <select id="package" name="package" class="field-control" aria-describedby="package-error">
+        <option value="">Select a package</option>
+        {packages.map((pkg) => <option value={pkg.name} data-package-id={pkg.id}>{pkg.name}</option>)}
+        {extraPackageOptions.map((option) => <option value={option.label} data-package-id={option.id}>{option.label}</option>)}
+      </select>
+    </FormField>
+
+    <FormField id="message" label="Tell me about your event" optionalHint class="sm:col-span-2">
+      <textarea
+        id="message"
+        name="message"
+        class="field-control"
+        rows="4"
+        maxlength="4000"
+        placeholder="The vibe you're going for, must-play songs, timeline, anything that helps."
+        aria-describedby="message-error"></textarea>
+    </FormField>
+
+    <div class="flex flex-col gap-5 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+      <p id="form-required-note" class="text-sm text-stone">
+        <span class="text-gold-ink" aria-hidden="true">*</span> Required. Replies typically within {business.contact.responseTime}.
+      </p>
+      <Button type="submit" variant="primary" class="w-full sm:w-auto" data-submit>
+        <span data-submit-label>{contactCopy.submitLabel}</span>
+      </Button>
+    </div>
+
+    <div class="sm:col-span-2" role="status" aria-live="polite" aria-atomic="true" data-form-status></div>
+  </form>
+
+  <!-- Success state (only shown after a confirmed successful submission) -->
+  <div class="flex flex-col items-start py-10 sm:py-16" data-form-success hidden tabindex="-1">
+    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-ink text-gold">
+      <Icon name="check" size={22} />
+    </span>
+    <h3 class="heading-lg mt-8">{contactCopy.successTitle}</h3>
+    <p class="mt-4 max-w-md text-stone">{contactCopy.successBody}</p>
+    <button type="button" class="link-line mt-8 py-2 text-sm font-semibold" data-form-reset>Send another inquiry</button>
+  </div>
+</div>
+
+<template id="form-error-template">
+  <div class="border-l-2 border-danger bg-danger/5 px-4 py-3 text-sm text-ink">
+    <p class="font-semibold">{contactCopy.errorBody}</p>
+    <p class="mt-1 text-stone">
+      <a class="underline underline-offset-2" href={contactLinks.email}>{business.contact.email}</a>
+      <span aria-hidden="true"> · </span>
+      <a class="underline underline-offset-2" href={contactLinks.phone}>{business.contact.phoneDisplay}</a>
+    </p>
+  </div>
+</template>
+
+<script>
+  import { initInquiryForm } from '../lib/inquiry-form';
+  initInquiryForm();
+</script>

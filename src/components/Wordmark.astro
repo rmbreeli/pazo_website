@@ -1,0 +1,21 @@
+---
+/**
+ * The PAZO wordmark. Text-based by design: Space Grotesk, bold, tight.
+ * `tone` switches between ink-on-light and ivory-on-dark.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { business } from '@config/business';
+
+interface Props extends HTMLAttributes<'span'> {
+  tone?: 'dark' | 'light';
+}
+
+const { tone = 'dark', class: className, ...rest } = Astro.props;
+---
+
+<span
+  class:list={['wordmark select-none', tone === 'light' ? 'text-ivory' : 'text-ink', className]}
+  {...rest}
+>
+  {business.wordmark}
+</span>
