@@ -6,10 +6,12 @@ import { heroCopy } from '@config/content';
 import { business } from '@config/business';
 import { hero } from '@config/media';
 import { firstExistingAsset, publicAssetExists } from '@lib/assets';
+import { firstFrame } from '@lib/autoplay-video';
 
 const videoSrc = firstExistingAsset(hero.videoCandidates);
 const webmSrc = publicAssetExists(hero.videoWebm) ? hero.videoWebm : undefined;
-const hasPoster = publicAssetExists(hero.poster);
+// A video always wins: the poster image is only shown when there is no hero video at all.
+const showPoster = !videoSrc && publicAssetExists(hero.poster);
 ---
 
 <section id="home" aria-labelledby="hero-title" class="relative pt-[calc(var(--nav-height)+clamp(2rem,6vw,4.5rem))]">
@@ -39,10 +41,10 @@ const hasPoster = publicAssetExists(hero.poster);
       </div>
     </div>
 
-    <!-- Cinematic media frame. Deliberately NOT animated: it holds the LCP image. -->
+    <!-- Cinematic media frame. Deliberately NOT animated: it holds the first thing visitors see. -->
     <div class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]">
       {
-        hasPoster && (
+        showPoster && (
           <img
             src={hero.poster}
             alt={hero.posterAlt}
@@ -58,18 +60,18 @@ const hasPoster = publicAssetExists(hero.poster);
       {
         videoSrc && (
           <video
-            class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000"
+            class="absolute inset-0 h-full w-full object-cover"
             style={`object-position: ${hero.focus}`}
             muted
             loop
             playsinline
-            preload="none"
+            preload="metadata"
             disablepictureinpicture
             aria-hidden="true"
             data-hero-video
           >
-            {webmSrc && <source src={webmSrc} type="video/webm" />}
-            <source src={videoSrc} type="video/mp4" />
+            {webmSrc && <source src={firstFrame(webmSrc)} type="video/webm" />}
+            <source src={firstFrame(videoSrc)} type="video/mp4" />
           </video>
         )
       }
@@ -117,14 +119,14 @@ const hasPoster = publicAssetExists(hero.poster);
 </section>
 
 <script>
+  import { canAutoplay } from '@lib/autoplay-video';
+
   const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
   const toggle = document.querySelector<HTMLButtonElement>('[data-hero-toggle]');
 
   if (video && toggle) {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    let userPaused = reduceMotion;
-    let started = false;
+    // Reduce Motion / Data Saver: the video rests on its first frame until the visitor presses play.
+    let userPaused = !canAutoplay();
 
     const sync = (playing: boolean) => {
       toggle.setAttribute('aria-pressed', String(playing));
@@ -133,8 +135,6 @@ const hasPoster = publicAssetExists(hero.poster);
 
     const play = () => video.play().then(() => sync(true)).catch(() => sync(false));
 
-    // Reveal the video only once frames are actually playing; the poster image stays underneath.
-    video.addEventListener('playing', () => video.classList.remove('opacity-0'), { once: true });
     video.querySelector('source:last-of-type')?.addEventListener('error', () => {
       toggle.hidden = true;
       video.remove();
@@ -142,7 +142,6 @@ const hasPoster = publicAssetExists(hero.poster);
 
     toggle.hidden = false;
     toggle.addEventListener('click', () => {
-      started = true;
       userPaused = !video.paused;
       if (video.paused) play();
       else {
@@ -151,24 +150,10 @@ const hasPoster = publicAssetExists(hero.poster);
       }
     });
 
-    // Pause off-screen to save battery; resume unless the visitor paused it.
+    // Plays the moment it is on screen (straight away on page load); pauses off screen to save battery.
     new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) video.pause();
-      else if (started && !userPaused) play();
+      else if (!userPaused) play();
     }).observe(video);
-
-    // Never compete with the initial page load. Respect reduced motion & data saver.
-    if (!reduceMotion && !saveData) {
-      const start = () => {
-        started = true;
-        video.preload = 'auto';
-        if (!userPaused) play();
-      };
-      if (document.readyState === 'complete') start();
-      else window.addEventListener('load', start, { once: true });
-    } else {
-      userPaused = true;
-      sync(false);
-    }
   }
 </script>

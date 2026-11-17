@@ -12,16 +12,13 @@ All website photos live in this folder. Every path below is referenced in
 
 | What | Path | Status |
 | --- | --- | --- |
-| Hero poster (shown before/without the hero video) | `public/images/hero/hero-poster.jpg` | Real photo in place (outdoor set). Replace anytime. |
+| Hero poster (only shown when there is no hero video; also the photo search engines see) | `public/images/hero/hero-poster.jpg` | Real photo in place (outdoor set). Replace anytime. |
 | Social share image (1200 x 630) | `public/images/og/og-image.jpg` | Cropped from the hero poster |
-| Private event photos | `public/images/events/private-events/private-event-01.jpg` ... `-03.jpg` | Real photos in place |
+| Private event photos | `public/images/events/private-events/private-event-01.jpg`, `-02.jpg` | Real photos in place (`-03.jpg` is kept but no longer shown) |
 | Bar & restaurant photos | `public/images/events/bars-restaurants/bars-restaurants-01.jpg` | Real photo in place |
 | Holiday party photos | `public/images/events/holiday-parties/holiday-party-01.jpg` | Real photo in place |
 | Wedding photo | `public/images/events/weddings/wedding-01.jpg` | **Awaiting upload** |
-| Wedding film poster frame | `public/images/events/weddings/wedding-highlight-01.jpg` | **Awaiting upload** |
 | Nightlife photo | `public/images/events/nightlife/nightlife-01.jpg` | **Awaiting upload** |
-| Performance video poster frame | `public/images/events/nightlife/performance-01.jpg` | **Awaiting upload** |
-| DJ setup / booth / lighting | `public/images/dj-setup/dj-setup-01.jpg` | **Awaiting upload** |
 | Studio / production | `public/images/production/production-01.jpg` | **Awaiting upload** |
 | Corporate events | `public/images/events/corporate/corporate-01.jpg` | Folder ready (add to media.ts to show) |
 | Music thumbnails (Listen section) | `public/images/production/throwbacks-hip-hop.jpg`, `edm-house-set.jpg`, `moonlight.jpg` | Real images in place |
