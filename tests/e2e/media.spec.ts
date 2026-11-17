@@ -6,6 +6,7 @@ const missing = gallery.filter((item) => !existsSync(`public${item.src}`));
 const present = gallery.filter((item) => existsSync(`public${item.src}`));
 const presentVideos = present.filter((item) => item.type === 'video');
 const noVideosYet = 'No gallery videos uploaded yet';
+const galleryTiles = 'ul[aria-label="Photo and video gallery"] > li';
 
 /** Resolves once the browser has rendered two frames, so IntersectionObserver callbacks have run. */
 const afterNextFrames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -43,7 +44,7 @@ test('every image has alt text', async ({ page }) => {
 
 test('missing gallery files render branded placeholders, not broken media', async ({ page }) => {
   await expect(page.locator('[data-media-placeholder]')).toHaveCount(missing.length);
-  await expect(page.locator('[data-lightbox-open]')).toHaveCount(present.length);
+  await expect(page.locator('[data-media-tile]')).toHaveCount(present.length);
   for (const item of missing) {
     await expect(page.locator(`[src="${item.src}"]`)).toHaveCount(0);
   }
@@ -67,60 +68,46 @@ test('gallery videos are not downloaded on page load', async ({ page }) => {
 
 test('gallery tiles appear in the order set in media.ts', async ({ page }) => {
   const shown = hideMissingMedia ? present : gallery;
-  await expect(page.locator('ul[aria-label="Photo and video gallery"] > li')).toContainText(shown.map((item) => item.title));
+  await expect(page.locator(galleryTiles)).toContainText(shown.map((item) => item.title));
 });
 
-test('gallery video previews autoplay muted in view, pause for the lightbox, and can be paused', async ({ page }) => {
+test('gallery tiles are display-only: nothing to click or tab to', async ({ page }) => {
+  await expect(page.locator(`${galleryTiles} :is(a, button, [tabindex])`)).toHaveCount(0);
+});
+
+test('gallery video previews play once, muted, for at most 5 seconds when scrolled into view', async ({ page }) => {
   test.skip(presentVideos.length === 0, noVideosYet);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.reload();
 
   const tile = page.locator('[data-gallery-preview]').first();
-  const video = tile.locator('video');
-  const toggle = tile.locator('[data-gallery-toggle]');
-  const isPlaying = () => video.evaluate((v: HTMLVideoElement) => !v.paused);
+  const state = () =>
+    tile.locator('video').evaluate((v: HTMLVideoElement) => ({ paused: v.paused, muted: v.muted, loop: v.loop, time: v.currentTime }));
 
   await tile.scrollIntoViewIfNeeded();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-  expect(await video.evaluate((v: HTMLVideoElement) => !v.paused && v.muted && v.loop)).toBe(true);
+  await expect.poll(async () => (await state()).paused).toBe(false);
+  expect(await state()).toMatchObject({ muted: true, loop: false });
 
-  await tile.locator('[data-lightbox-open]').click();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-  expect(await isPlaying()).toBe(false);
-  await page.keyboard.press('Escape');
-  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  // Stops by itself (WCAG 2.2.2: no pause control needed under 5 s). Small margin for timer jitter.
+  await expect.poll(async () => (await state()).paused, { timeout: 8_000 }).toBe(true);
+  expect((await state()).time).toBeLessThanOrEqual(5.25);
 
-  await toggle.click();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-  await expect(toggle).toHaveAccessibleName(/^Play .+ preview$/);
-  expect(await isPlaying()).toBe(false);
+  // Scrolling away and back does not start it again.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await tile.scrollIntoViewIfNeeded();
+  await page.evaluate(afterNextFrames);
+  expect((await state()).paused).toBe(true);
 });
 
-test('with reduced motion, gallery previews stay paused and download nothing until played', async ({ page }) => {
+test('with reduced motion, gallery previews never play or download', async ({ page }) => {
   test.skip(presentVideos.length === 0, noVideosYet);
   const tile = page.locator('[data-gallery-preview]').first();
   const video = tile.locator('video');
-  const toggle = tile.locator('[data-gallery-toggle]');
 
   await tile.scrollIntoViewIfNeeded();
   await page.evaluate(afterNextFrames);
-  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   await expect(video).not.toHaveAttribute('src');
-
-  await toggle.click();
-  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-});
-
-test('lightbox opens a photo, then closes with Escape and restores focus', async ({ page }) => {
-  const trigger = page.locator('[data-lightbox-open]').first();
-  await trigger.click();
-  const dialog = page.locator('#lightbox');
-  await expect(dialog).toBeVisible();
-  await expect(dialog.locator('[data-lightbox-stage] img')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
-  await expect(dialog.locator('[data-lightbox-stage] *')).toHaveCount(0);
-  await expect(trigger).toBeFocused();
+  expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
 });
 
 test('listen links open the real external sources in a new tab', async ({ page }) => {

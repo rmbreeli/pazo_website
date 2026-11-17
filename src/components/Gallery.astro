@@ -1,6 +1,4 @@
 ---
-import Icon from './Icon.astro';
-import VideoToggle from './VideoToggle.astro';
 import { gallery, hideMissingMedia, mediaCategories, type MediaItem, type TileLayout } from '@config/media';
 import { publicAssetExists } from '@lib/assets';
 
@@ -23,8 +21,8 @@ const tiles: Tile[] = gallery
 
 const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.posterAvailable ? tile.poster : undefined);
 
-// Shared by the still image and the video preview so both zoom the same way on hover.
-const zoomOnHover = 'h-full w-full object-cover duration-[1.2s] ease-[var(--ease-out-soft)] group-hover:scale-[1.035]';
+// Shared by the still image and the video preview so both crop identically.
+const fill = 'h-full w-full object-cover';
 ---
 
 <ul
@@ -37,6 +35,7 @@ const zoomOnHover = 'h-full w-full object-cover duration-[1.2s] ease-[var(--ease
       const thumbnail = thumbnailFor(tile);
       const isFilm = tile.type === 'video';
       const hasPreview = isFilm && tile.available;
+      const objectPosition = tile.focus && `object-position: ${tile.focus}`;
 
       return (
         <li
@@ -46,62 +45,30 @@ const zoomOnHover = 'h-full w-full object-cover duration-[1.2s] ease-[var(--ease
           style={`--reveal-delay: ${(index % 4) * 60}ms`}
         >
           {tile.available ? (
-            <>
-              <button
-                type="button"
-                class="group absolute inset-0 block h-full w-full cursor-zoom-in overflow-hidden bg-charcoal text-left"
-                data-lightbox-open
-                data-type={tile.type}
-                data-src={tile.src}
-                data-poster={isFilm && tile.posterAvailable ? tile.poster : undefined}
-                data-alt={tile.alt}
-                data-title={`${tile.title} · ${category}`}
-              >
-                {thumbnail && (
-                  <img
-                    src={thumbnail}
-                    alt={tile.alt}
-                    loading="lazy"
-                    decoding="async"
-                    class:list={[zoomOnHover, 'transition-transform']}
-                    style={tile.focus && `object-position: ${tile.focus}`}
-                  />
-                )}
-                {hasPreview && (
-                  <video
-                    class:list={[zoomOnHover, 'absolute inset-0 opacity-0 transition-[opacity,scale]']}
-                    style={tile.focus && `object-position: ${tile.focus}`}
-                    muted
-                    loop
-                    playsinline
-                    preload="none"
-                    disablepictureinpicture
-                    aria-hidden="true"
-                    data-gallery-video
-                    data-src={tile.src}
-                  />
-                )}
-                <span class="absolute inset-0 bg-gradient-to-t from-ink/65 via-transparent to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
-                {isFilm && (
-                  <span class="absolute top-1/2 left-1/2 inline-flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-ivory/60 text-ivory backdrop-blur-sm transition-[color,background-color,opacity] duration-500 group-hover:bg-ivory group-hover:text-ink [[data-playing]_&]:opacity-0">
-                    <Icon name="play" size={18} />
-                  </span>
-                )}
-                <span class="absolute right-4 bottom-4 left-4 flex flex-col gap-1 text-ivory">
-                  <span class="eyebrow hidden text-ivory/75 sm:block">{category}</span>
-                  <span class="text-sm leading-snug font-semibold">{tile.title}</span>
-                  <span class="sr-only">{isFilm ? '(play video)' : '(view larger)'}</span>
-                </span>
-              </button>
+            <div class="absolute inset-0 bg-charcoal" data-media-tile={tile.src}>
+              {thumbnail && (
+                <img src={thumbnail} alt={tile.alt} loading="lazy" decoding="async" class={fill} style={objectPosition} />
+              )}
               {hasPreview && (
-                <VideoToggle
-                  class="absolute top-3 right-3 bg-ink/40 backdrop-blur-sm sm:top-4 sm:right-4"
-                  aria-label={`Play ${tile.title} preview`}
-                  data-gallery-toggle
-                  data-label={tile.title}
+                <video
+                  class:list={[fill, 'absolute inset-0 opacity-0 transition-opacity duration-700']}
+                  style={objectPosition}
+                  muted
+                  playsinline
+                  preload="none"
+                  disablepictureinpicture
+                  aria-hidden="true"
+                  data-gallery-video
+                  data-src={tile.src}
                 />
               )}
-            </>
+              <span class="absolute inset-0 bg-gradient-to-t from-ink/65 via-transparent to-transparent opacity-80" aria-hidden="true" />
+              <span class="absolute right-4 bottom-4 left-4 flex flex-col gap-1 text-ivory">
+                <span class="eyebrow hidden text-ivory/75 sm:block">{category}</span>
+                <span class="text-sm leading-snug font-semibold">{tile.title}</span>
+                {!thumbnail && <span class="sr-only">{tile.alt}</span>}
+              </span>
+            </div>
           ) : (
             <div
               class:list={[
@@ -124,77 +91,8 @@ const zoomOnHover = 'h-full w-full object-cover duration-[1.2s] ease-[var(--ease
   }
 </ul>
 
-<!-- Lightbox (native dialog: focus trap, Escape to close, focus restore) -->
-<dialog
-  id="lightbox"
-  class="m-auto h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-ink/92"
-  aria-label="Media viewer"
->
-  <div class="flex h-full w-full flex-col p-4 sm:p-8" data-lightbox-backdrop>
-    <div class="flex items-center justify-between gap-4 text-ivory">
-      <p class="eyebrow text-ivory/80" data-lightbox-caption></p>
-      <button
-        type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 transition-colors hover:bg-ivory hover:text-ink focus-visible:outline-gold"
-        data-lightbox-close
-      >
-        <Icon name="close" size={18} label="Close media viewer" />
-      </button>
-    </div>
-    <div class="flex min-h-0 flex-1 items-center justify-center pt-4" data-lightbox-stage></div>
-  </div>
-</dialog>
-
 <script>
   import { initGalleryPreviews } from '@lib/gallery-previews';
 
-  const previews = initGalleryPreviews();
-  const dialog = document.getElementById('lightbox') as HTMLDialogElement;
-  const stage = dialog.querySelector<HTMLElement>('[data-lightbox-stage]')!;
-  const caption = dialog.querySelector<HTMLElement>('[data-lightbox-caption]')!;
-
-  const mediaClasses = 'max-h-full max-w-full object-contain';
-
-  const open = (trigger: HTMLElement) => {
-    const { type, src, poster, alt, title } = trigger.dataset;
-    if (!src) return;
-    stage.replaceChildren();
-
-    if (type === 'video') {
-      // The video file is only requested now, when the visitor asks for it.
-      const video = Object.assign(document.createElement('video'), {
-        src,
-        controls: true,
-        autoplay: true,
-        playsInline: true,
-        className: mediaClasses,
-      });
-      if (poster) video.poster = poster;
-      video.setAttribute('aria-label', alt ?? '');
-      stage.append(video);
-    } else {
-      const img = Object.assign(document.createElement('img'), { src, alt: alt ?? '', className: mediaClasses });
-      stage.append(img);
-    }
-
-    caption.textContent = title ?? '';
-    previews.suspend();
-    dialog.showModal();
-  };
-
-  document.querySelectorAll<HTMLElement>('[data-lightbox-open]').forEach((trigger) =>
-    trigger.addEventListener('click', () => open(trigger)),
-  );
-
-  dialog.querySelector('[data-lightbox-close]')!.addEventListener('click', () => dialog.close());
-  // Clicking the dark area (not the media itself) closes the viewer.
-  dialog.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement;
-    if (target === dialog || target.matches('[data-lightbox-backdrop], [data-lightbox-stage]')) dialog.close();
-  });
-  // Tear down on close so videos stop playing and stop downloading; tile previews pick up again.
-  dialog.addEventListener('close', () => {
-    stage.replaceChildren();
-    previews.resume();
-  });
+  initGalleryPreviews();
 </script>

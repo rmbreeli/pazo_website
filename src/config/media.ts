@@ -41,7 +41,7 @@ export type TileLayout = 'feature' | 'wide' | 'tall' | 'standard';
 interface MediaBase {
   id: string;
   category: MediaCategory;
-  /** Short title shown on hover / in the lightbox */
+  /** Short title shown on the tile */
   title: string;
   /** Describe what is actually in the photo, for screen readers & SEO */
   alt: string;

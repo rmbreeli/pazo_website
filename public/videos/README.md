@@ -40,18 +40,21 @@ site falls back to the poster image or a branded panel until the file exists.
 
 ## Gallery videos
 
-- Play **muted, looping, inline** right in their tile once it scrolls into view,
-  and pause when scrolled away. The file is only downloaded at that point, so
-  videos never slow down the initial page load.
-- Each video tile has a small pause/play button (required for accessibility).
-  Visitors with *Reduce Motion* or *Data Saver* enabled see the still image
-  and can press play.
-- Tapping the tile opens the full video with sound and controls.
+- Play **once, muted, inline** right in their tile when it scrolls into view,
+  for **at most 5 seconds**, then rest on the last frame. The file is only
+  downloaded at that point, so videos never slow down the initial page load.
+- Tiles have no buttons and can't be clicked. Stopping within 5 seconds is
+  what keeps this accessible without a pause button (WCAG 2.2.2), so a longer
+  clip is fine, but only its first 5 seconds are shown.
+- Visitors with *Reduce Motion* or *Data Saver* enabled only see the still
+  image (poster).
 - Keep gallery clips short and light (ideally **under ~8 MB**), since they
   autoplay. Portrait clips suit `tall` tiles, landscape clips suit `wide` tiles.
-- **Format:** MP4 (H.264 + AAC audio), `-movflags +faststart` recommended.
-- Always add a poster `.jpg` (a nice still frame). Without one, the tile shows
-  a dark panel with a play button.
+- **Format:** MP4 (H.264), `-movflags +faststart` recommended. Previews are
+  muted, so audio is optional.
+- Always add a poster `.jpg` (a nice still frame). Without one, the tile is a
+  dark panel until the preview starts, and stays dark for Reduce Motion /
+  Data Saver visitors.
 
 ## Add a new video
 

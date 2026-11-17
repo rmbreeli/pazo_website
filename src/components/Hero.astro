@@ -1,7 +1,6 @@
 ---
 import Button from './Button.astro';
 import Icon from './Icon.astro';
-import VideoToggle from './VideoToggle.astro';
 import Wordmark from './Wordmark.astro';
 import { heroCopy } from '@config/content';
 import { business } from '@config/business';
@@ -89,11 +88,17 @@ const hasPoster = publicAssetExists(hero.poster);
 
       {
         videoSrc && (
-          <VideoToggle
-            class="absolute right-4 bottom-4 sm:right-7 sm:bottom-7"
+          <button
+            type="button"
+            class="absolute right-4 bottom-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 text-ivory transition-colors hover:bg-ivory hover:text-ink sm:right-7 sm:bottom-7"
             aria-label="Play background video"
+            aria-pressed="false"
             data-hero-toggle
-          />
+            hidden
+          >
+            <Icon name="play" size={16} class="hidden [[aria-pressed=false]_&]:block" />
+            <Icon name="pause" size={16} class="hidden [[aria-pressed=true]_&]:block" />
+          </button>
         )
       }
     </div>

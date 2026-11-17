@@ -1,107 +1,69 @@
 import { canAutoplay } from './autoplay-video';
 
 /**
- * Muted, looping previews on gallery video tiles.
+ * Longest a preview may run. Moving content that stops within 5 seconds needs
+ * no pause control (WCAG 2.2.2), which is why the tiles have no buttons.
+ */
+const MAX_PREVIEW_SECONDS = 5;
+
+/**
+ * Silent, one-time previews on gallery video tiles.
  *
  *  - A tile's video file is only requested once the tile scrolls into view,
  *    so gallery videos never slow down the initial page load.
- *  - Plays while on screen, pauses off screen (battery & data).
- *  - Every tile has its own pause/play button (WCAG 2.2.2), and a visitor's
- *    choice sticks.
- *  - suspend()/resume() let the lightbox silence previews while it is open.
+ *  - Each preview plays once, for at most 5 seconds, then rests on its last
+ *    frame. Scrolling away pauses it; scrolling back finishes the run.
+ *  - Reduce Motion / Data Saver: nothing plays or downloads.
  *
  * Expected markup: [data-gallery-preview] > video[data-gallery-video][data-src]
- *                                         + button[data-gallery-toggle][data-label]
  */
-interface Preview {
-  tile: HTMLElement;
-  video: HTMLVideoElement;
-  toggle: HTMLButtonElement;
-  visible: boolean;
-  userPaused: boolean;
-}
-
 export const initGalleryPreviews = () => {
-  const startPaused = !canAutoplay();
-  const previews = new Map<Element, Preview>();
-  let suspended = false;
+  if (!canAutoplay()) return;
 
-  const sync = ({ tile, toggle }: Preview, playing: boolean) => {
-    tile.toggleAttribute('data-playing', playing);
-    toggle.setAttribute('aria-pressed', String(playing));
-    toggle.setAttribute('aria-label', `${playing ? 'Pause' : 'Play'} ${toggle.dataset.label ?? 'video'} preview`);
-  };
-
-  const play = (preview: Preview) => {
-    const { video } = preview;
-    if (!video.hasAttribute('src')) video.src = video.dataset.src ?? '';
-    video
-      .play()
-      .then(() => sync(preview, true))
-      .catch(() => sync(preview, false));
-  };
-
-  const pause = (preview: Preview) => {
-    preview.video.pause();
-    sync(preview, false);
-  };
-
-  const update = (preview: Preview) =>
-    preview.visible && !preview.userPaused && !suspended ? play(preview) : pause(preview);
-
+  const onVisibility = new Map<Element, (visible: boolean) => void>();
   const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const preview = previews.get(entry.target);
-        if (!preview) continue;
-        preview.visible = entry.isIntersecting;
-        update(preview);
-      }
-    },
+    (entries) => entries.forEach(({ target, isIntersecting }) => onVisibility.get(target)?.(isIntersecting)),
     { threshold: 0.25 },
   );
 
-  document.querySelectorAll<HTMLElement>('[data-gallery-preview]').forEach((tile) => {
+  document.querySelectorAll('[data-gallery-preview]').forEach((tile) => {
     const video = tile.querySelector<HTMLVideoElement>('[data-gallery-video]');
-    const toggle = tile.querySelector<HTMLButtonElement>('[data-gallery-toggle]');
-    if (!video || !toggle) return;
+    if (!video) return;
 
-    const preview: Preview = { tile, video, toggle, visible: false, userPaused: startPaused };
-    previews.set(tile, preview);
+    let done = false;
+    let stopTimer: number | undefined;
 
-    // Reveal the video only once frames are playing; the still image stays underneath.
-    video.addEventListener('playing', () => video.classList.remove('opacity-0'), { once: true });
+    const finish = () => {
+      done = true;
+      video.pause();
+      observer.unobserve(tile);
+    };
+
+    onVisibility.set(tile, (visible) => {
+      if (!visible) return video.pause();
+      if (done) return;
+      if (!video.hasAttribute('src')) video.src = video.dataset.src ?? '';
+      video.play().catch(() => {}); // Autoplay blocked (e.g. Low Power Mode): the tile simply stays still.
+    });
+
+    video.addEventListener('playing', () => {
+      // Reveal the video only once frames are playing; the still image stays underneath.
+      video.classList.remove('opacity-0');
+      window.clearTimeout(stopTimer);
+      stopTimer = window.setTimeout(finish, (MAX_PREVIEW_SECONDS - video.currentTime) * 1000);
+    });
+    video.addEventListener('pause', () => window.clearTimeout(stopTimer));
+    video.addEventListener('ended', finish);
     // A file the browser can't play falls back to the still tile, never a broken player.
     video.addEventListener(
       'error',
       () => {
-        observer.unobserve(tile);
-        previews.delete(tile);
-        tile.removeAttribute('data-playing');
+        finish();
         video.remove();
-        toggle.remove();
       },
       { once: true },
     );
 
-    toggle.addEventListener('click', () => {
-      preview.userPaused = !video.paused;
-      update(preview);
-    });
-
-    sync(preview, false);
-    toggle.hidden = false;
     observer.observe(tile);
   });
-
-  return {
-    suspend: () => {
-      suspended = true;
-      previews.forEach(pause);
-    },
-    resume: () => {
-      suspended = false;
-      previews.forEach(update);
-    },
-  };
 };
