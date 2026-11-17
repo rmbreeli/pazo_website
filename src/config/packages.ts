@@ -50,7 +50,7 @@ export const packages: Package[] = [
     category: 'Hourly',
     name: 'Private Events',
     price: { amount: 100, per: 'hour' },
-    additionalFee: { amount: 150, label: 'flat fee' },
+    additionalFee: { amount: 250, label: 'flat fee' },
     duration: 'Typical events run 4–6 hours',
     description:
       'Professional DJ entertainment tailored to your event, with music curated around your guests, atmosphere, and vision. For private parties, birthdays, corporate events, and other special occasions.',
@@ -69,8 +69,8 @@ export const packages: Package[] = [
     category: 'Weddings',
     name: 'Essential Wedding Reception',
     shortName: 'Essential',
-    price: { amount: 795 },
-    duration: '4 hours of reception coverage',
+    price: { amount: 995 },
+    duration: '6 hours of reception coverage',
     description:
       'A polished DJ experience for couples looking for professional music, smooth transitions, and an unforgettable reception.',
     inclusions: [
@@ -90,8 +90,8 @@ export const packages: Package[] = [
     id: 'signature-wedding',
     category: 'Weddings',
     name: 'Signature Wedding Reception',
-    price: { amount: 995 },
-    duration: 'Up to 6 hours of total coverage',
+    price: { amount: 1495 },
+    duration: 'Up to 10 hours of total coverage',
     description:
       'An elevated wedding experience with ceremony and cocktail-hour coverage, upgraded lighting, and more time to celebrate.',
     includesEverythingFrom: 'essential-wedding',

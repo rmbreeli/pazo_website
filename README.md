@@ -69,7 +69,7 @@ Open **`src/config/packages.ts`** and edit the package:
 ```ts
 price: { amount: 795 },                        // -> "$795"
 price: { amount: 100, per: 'hour' },           // -> "$100 / hour"
-additionalFee: { amount: 150, label: 'flat fee' },
+additionalFee: { amount: 250, label: 'flat fee' },
 duration: '4 hours of reception coverage',
 inclusions: ['DJ and MC / announcement services', ...],
 featured: true,                                // champagne-accented card

@@ -30,10 +30,9 @@ needed.
 ## How the hero video behaves
 
 - Plays **muted, looping forever, inline**, with no controls, as soon as the
-  page opens.
-- A small play/pause button sits in the corner.
+  page opens. It has no pause button.
 - Visitors with *Reduce Motion* or *Data Saver* enabled see the video's
-  first frame instead, and can press play.
+  first frame instead.
 
 ### Recommended hero export
 

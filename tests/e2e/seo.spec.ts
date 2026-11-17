@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { packages, describePrice } from '../../src/config/packages';
+import { packages, describePrice, formatDollars } from '../../src/config/packages';
 import { testimonials } from '../../src/config/testimonials';
 
 test.describe('metadata', () => {
@@ -41,7 +41,8 @@ test.describe('metadata', () => {
 
   test('prices on the page match the config', async ({ page }) => {
     for (const pkg of packages) {
-      await expect(page.locator(`#packages`)).toContainText(`$${pkg.price.amount}`);
+      // Same formatter as the page, so $1,495 is expected with its thousands separator.
+      await expect(page.locator(`#packages`)).toContainText(formatDollars(pkg.price.amount));
     }
     await expect(page.locator('#packages')).toContainText('$150');
     await expect(page.locator('#packages')).toContainText('flat fee');

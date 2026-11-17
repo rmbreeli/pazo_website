@@ -60,6 +60,7 @@ test('hero video starts looping straight away', async ({ page }) => {
   await page.reload();
   const video = page.locator('[data-hero-video]');
   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.loop && v.muted)).toBe(true);
+  await expect(page.locator('#home button')).toHaveCount(0); // continuous loop: no pause control
 });
 
 test('gallery videos are not downloaded on page load', async ({ page }) => {
