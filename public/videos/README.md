@@ -12,6 +12,7 @@ site falls back to the poster image or a branded panel until the file exists.
 | Hero video, optional WebM | `public/videos/hero/hero-video.webm` | (same) |
 | Wedding highlight film | `public/videos/weddings/wedding-highlight-01.mp4` | `public/images/events/weddings/wedding-highlight-01.jpg` |
 | Live performance | `public/videos/performances/performance-01.mp4` | `public/images/events/nightlife/performance-01.jpg` |
+| Booth & lighting | `public/videos/dj-setup/dj-setup-01.mp4` | `public/images/dj-setup/dj-setup-01.jpg` |
 | More nightlife clips | `public/videos/nightlife/nightlife-01.mp4` | add to media.ts |
 | Behind the scenes | `public/videos/behind-the-scenes/bts-01.mp4` | add to media.ts |
 
@@ -39,7 +40,15 @@ site falls back to the poster image or a branded panel until the file exists.
 
 ## Gallery videos
 
-- Only downloaded when a visitor taps play (they never slow down the page).
+- Play **muted, looping, inline** right in their tile once it scrolls into view,
+  and pause when scrolled away. The file is only downloaded at that point, so
+  videos never slow down the initial page load.
+- Each video tile has a small pause/play button (required for accessibility).
+  Visitors with *Reduce Motion* or *Data Saver* enabled see the still image
+  and can press play.
+- Tapping the tile opens the full video with sound and controls.
+- Keep gallery clips short and light (ideally **under ~8 MB**), since they
+  autoplay. Portrait clips suit `tall` tiles, landscape clips suit `wide` tiles.
 - **Format:** MP4 (H.264 + AAC audio), `-movflags +faststart` recommended.
 - Always add a poster `.jpg` (a nice still frame). Without one, the tile shows
   a dark panel with a play button.

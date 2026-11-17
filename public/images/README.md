@@ -21,7 +21,7 @@ All website photos live in this folder. Every path below is referenced in
 | Wedding film poster frame | `public/images/events/weddings/wedding-highlight-01.jpg` | **Awaiting upload** |
 | Nightlife photo | `public/images/events/nightlife/nightlife-01.jpg` | **Awaiting upload** |
 | Performance video poster frame | `public/images/events/nightlife/performance-01.jpg` | **Awaiting upload** |
-| DJ setup / booth / lighting | `public/images/dj-setup/dj-setup-01.jpg` | **Awaiting upload** |
+| DJ setup / booth / lighting (poster frame for the booth video) | `public/images/dj-setup/dj-setup-01.jpg` | **Awaiting upload** |
 | Studio / production | `public/images/production/production-01.jpg` | **Awaiting upload** |
 | Corporate events | `public/images/events/corporate/corporate-01.jpg` | Folder ready (add to media.ts to show) |
 | Music thumbnails (Listen section) | `public/images/production/throwbacks-hip-hop.jpg`, `edm-house-set.jpg`, `moonlight.jpg` | Real images in place |

@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { gallery } from '../../src/config/media';
+import { gallery, hideMissingMedia } from '../../src/config/media';
 import { existsSync } from 'node:fs';
 
 const missing = gallery.filter((item) => !existsSync(`public${item.src}`));
 const present = gallery.filter((item) => existsSync(`public${item.src}`));
+const presentVideos = present.filter((item) => item.type === 'video');
+const noVideosYet = 'No gallery videos uploaded yet';
+
+/** Resolves once the browser has rendered two frames, so IntersectionObserver callbacks have run. */
+const afterNextFrames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -58,6 +63,52 @@ test('gallery videos are not downloaded on page load', async ({ page }) => {
   await page.reload();
   await page.waitForLoadState('networkidle');
   expect(videoRequests).toEqual([]);
+});
+
+test('gallery tiles appear in the order set in media.ts', async ({ page }) => {
+  const shown = hideMissingMedia ? present : gallery;
+  await expect(page.locator('ul[aria-label="Photo and video gallery"] > li')).toContainText(shown.map((item) => item.title));
+});
+
+test('gallery video previews autoplay muted in view, pause for the lightbox, and can be paused', async ({ page }) => {
+  test.skip(presentVideos.length === 0, noVideosYet);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+
+  const tile = page.locator('[data-gallery-preview]').first();
+  const video = tile.locator('video');
+  const toggle = tile.locator('[data-gallery-toggle]');
+  const isPlaying = () => video.evaluate((v: HTMLVideoElement) => !v.paused);
+
+  await tile.scrollIntoViewIfNeeded();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  expect(await video.evaluate((v: HTMLVideoElement) => !v.paused && v.muted && v.loop)).toBe(true);
+
+  await tile.locator('[data-lightbox-open]').click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  expect(await isPlaying()).toBe(false);
+  await page.keyboard.press('Escape');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(toggle).toHaveAccessibleName(/^Play .+ preview$/);
+  expect(await isPlaying()).toBe(false);
+});
+
+test('with reduced motion, gallery previews stay paused and download nothing until played', async ({ page }) => {
+  test.skip(presentVideos.length === 0, noVideosYet);
+  const tile = page.locator('[data-gallery-preview]').first();
+  const video = tile.locator('video');
+  const toggle = tile.locator('[data-gallery-toggle]');
+
+  await tile.scrollIntoViewIfNeeded();
+  await page.evaluate(afterNextFrames);
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(video).not.toHaveAttribute('src');
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('lightbox opens a photo, then closes with Escape and restores focus', async ({ page }) => {
