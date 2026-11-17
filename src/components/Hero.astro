@@ -87,22 +87,6 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
       <ul class="absolute top-5 left-5 flex flex-wrap gap-x-5 gap-y-1 sm:top-7 sm:left-7" aria-label="Event specialties">
         {heroCopy.highlights.map((item) => <li class="eyebrow text-ivory/90">{item}</li>)}
       </ul>
-
-      {
-        videoSrc && (
-          <button
-            type="button"
-            class="absolute right-4 bottom-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/40 text-ivory transition-colors hover:bg-ivory hover:text-ink sm:right-7 sm:bottom-7"
-            aria-label="Play background video"
-            aria-pressed="false"
-            data-hero-toggle
-            hidden
-          >
-            <Icon name="play" size={16} class="hidden [[aria-pressed=false]_&]:block" />
-            <Icon name="pause" size={16} class="hidden [[aria-pressed=true]_&]:block" />
-          </button>
-        )
-      }
     </div>
 
     <div class="flex flex-col gap-3 border-b border-line py-6 text-sm text-stone sm:flex-row sm:items-center sm:justify-between">
@@ -122,38 +106,18 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
   import { canAutoplay } from '@lib/autoplay-video';
 
   const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
-  const toggle = document.querySelector<HTMLButtonElement>('[data-hero-toggle]');
 
-  if (video && toggle) {
-    // Reduce Motion / Data Saver: the video rests on its first frame until the visitor presses play.
-    let userPaused = !canAutoplay();
+  if (video) {
+    // A file the browser can't play is removed, never shown as a broken player.
+    video.querySelector('source:last-of-type')?.addEventListener('error', () => video.remove());
 
-    const sync = (playing: boolean) => {
-      toggle.setAttribute('aria-pressed', String(playing));
-      toggle.setAttribute('aria-label', playing ? 'Pause background video' : 'Play background video');
-    };
-
-    const play = () => video.play().then(() => sync(true)).catch(() => sync(false));
-
-    video.querySelector('source:last-of-type')?.addEventListener('error', () => {
-      toggle.hidden = true;
-      video.remove();
-    });
-
-    toggle.hidden = false;
-    toggle.addEventListener('click', () => {
-      userPaused = !video.paused;
-      if (video.paused) play();
-      else {
-        video.pause();
-        sync(false);
-      }
-    });
-
-    // Plays the moment it is on screen (straight away on page load); pauses off screen to save battery.
-    new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) video.pause();
-      else if (!userPaused) play();
-    }).observe(video);
+    // Continuous loop with no pause control. It only rests while scrolled off screen (saves battery)
+    // and picks up again the moment it is back. Reduce Motion / Data Saver: stays on its first frame.
+    if (canAutoplay()) {
+      new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      }).observe(video);
+    }
   }
 </script>
