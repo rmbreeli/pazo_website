@@ -63,6 +63,21 @@ test('hero video starts looping straight away', async ({ page }) => {
   await expect(page.locator('#home button')).toHaveCount(0); // continuous loop: no pause control
 });
 
+test('hero frame and video suit the screen: phone cut on phones, main video everywhere else', async ({ page }, testInfo) => {
+  test.skip(!existsSync('public/videos/hero/hero-video.mp4'), 'No hero video uploaded');
+  const hasMobileCut = existsSync('public/videos/hero/hero-video-mobile.mp4');
+  const onPhone = testInfo.project.name === 'mobile';
+
+  // Phones: tall 4:5 frame for the portrait cut, otherwise 16:9 so most of the wide shot is visible.
+  if (onPhone) {
+    const box = (await page.locator('[data-hero-frame]').boundingBox())!;
+    expect(box.width / box.height).toBeCloseTo(hasMobileCut ? 4 / 5 : 16 / 9, 1);
+  }
+
+  const playing = () => page.locator('[data-hero-video]').evaluate((v: HTMLVideoElement) => new URL(v.currentSrc).pathname);
+  await expect.poll(playing).toBe(onPhone && hasMobileCut ? '/videos/hero/hero-video-mobile.mp4' : '/videos/hero/hero-video.mp4');
+});
+
 test('gallery videos are not downloaded on page load', async ({ page }) => {
   const videoRequests: string[] = [];
   page.on('request', (request) => {

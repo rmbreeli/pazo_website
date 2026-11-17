@@ -13,6 +13,7 @@ needed.
 | What | Path |
 | --- | --- |
 | **Hero video** | `public/videos/hero/hero-video.mp4` |
+| Hero video for phones, optional (portrait 4:5) | `public/videos/hero/hero-video-mobile.mp4` (see `hero/README.md`) |
 | Hero video, optional WebM | `public/videos/hero/hero-video.webm` |
 | Wedding highlight film | `public/videos/weddings/wedding-highlight-01.mp4` |
 | Live performance | `public/videos/performances/performance-01.mp4` |
@@ -31,14 +32,17 @@ needed.
 
 - Plays **muted, looping forever, inline**, with no controls, as soon as the
   page opens. It has no pause button.
+- **Phones:** if `hero-video-mobile.mp4` exists, phones play that portrait cut
+  in a tall 4:5 frame. Otherwise they play the main video in a 16:9 frame so
+  most of the wide shot stays visible. Directions: `hero/README.md`.
 - Visitors with *Reduce Motion* or *Data Saver* enabled see the video's
   first frame instead.
 
 ### Recommended hero export
 
 - **Format:** MP4 (H.264), no audio track needed
-- **Aspect:** 16:9 or wider (it is framed at 21:9 on desktop, 4:5 on phones,
-  so keep the action near the center-right)
+- **Aspect:** 16:9 or wider (it is framed at 21:9 on desktop, 16:10 on tablets
+  and 16:9 on phones, cropped from the center, so keep the action centered)
 - **Length:** 8–20 seconds, loops seamlessly
 - **Size:** 1920 px wide, **under ~8 MB** (lower bitrate = faster site)
 - Example with ffmpeg:

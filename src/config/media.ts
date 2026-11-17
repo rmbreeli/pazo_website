@@ -72,13 +72,22 @@ export const hero = {
   /** Optional WebM version for smaller downloads (used if present). */
   videoWebm: '/videos/hero/hero-video.webm',
   /**
+   * OPTIONAL portrait (4:5) cut of the hero video for phones. Once this file
+   * exists, phones play it in a tall 4:5 frame; tablets and desktops never
+   * download it. Until then, phones play the main video in a 16:9 frame so
+   * most of the wide shot stays visible. See public/videos/hero/README.md.
+   */
+  mobileVideo: '/videos/hero/hero-video-mobile.mp4',
+  /** Where the wide video is cropped on narrower screens (x% y%). Centered keeps every shot readable. */
+  videoFocus: '50% 50%',
+  /**
    * Only shown when there is NO hero video (a video always wins, with no image
    * before it). Also the business photo search engines see. A real DJ PAZO photo.
    */
   poster: '/images/hero/hero-poster.jpg',
   posterAlt: 'DJ PAZO mixing on a Pioneer DJ controller at an outdoor pavilion event',
-  /** Keeps the DJ's face in frame when the video/poster is cropped (x% y%). */
-  focus: '66% 6%',
+  /** Keeps the DJ's face in frame when the poster photo is cropped (x% y%). */
+  posterFocus: '66% 6%',
 } as const;
 
 // ---------------------------------------------------------------------------
