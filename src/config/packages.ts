@@ -50,7 +50,7 @@ export const packages: Package[] = [
     category: 'Hourly',
     name: 'Private Events',
     price: { amount: 100, per: 'hour' },
-    additionalFee: { amount: 150, label: 'flat fee' },
+    additionalFee: { amount: 250, label: 'flat fee' },
     duration: 'Typical events run 4–6 hours',
     description:
       'Professional DJ entertainment tailored to your event, with music curated around your guests, atmosphere, and vision. For private parties, birthdays, corporate events, and other special occasions.',
