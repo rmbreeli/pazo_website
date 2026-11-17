@@ -57,9 +57,8 @@ export interface ImageItem extends MediaBase {
 
 export interface VideoItem extends MediaBase {
   type: 'video';
+  /** Plays muted and on loop in its tile. No still image is ever shown in front of it. */
   src: string;
-  /** Still frame shown before the video is played (jpg) */
-  poster: string;
 }
 
 export type MediaItem = ImageItem | VideoItem;
@@ -72,7 +71,10 @@ export const hero = {
   videoCandidates: ['/videos/hero/hero-video.mp4', '/images/hero/hero-video.mp4'],
   /** Optional WebM version for smaller downloads (used if present). */
   videoWebm: '/videos/hero/hero-video.webm',
-  /** Still image shown before/without the video. Currently a real DJ PAZO photo. */
+  /**
+   * Only shown when there is NO hero video (a video always wins, with no image
+   * before it). Also the business photo search engines see. A real DJ PAZO photo.
+   */
   poster: '/images/hero/hero-poster.jpg',
   posterAlt: 'DJ PAZO mixing on a Pioneer DJ controller at an outdoor pavilion event',
   /** Keeps the DJ's face in frame when the video/poster is cropped (x% y%). */
@@ -106,7 +108,6 @@ export const gallery: MediaItem[] = [
     id: 'dj-setup-01',
     type: 'video',
     src: '/videos/dj-setup/dj-setup-01.mp4',
-    poster: '/images/dj-setup/dj-setup-01.jpg',
     category: 'dj-setup',
     title: 'Booth & lighting',
     alt: 'DJ PAZO’s booth, sound system and lighting setup',
@@ -125,19 +126,18 @@ export const gallery: MediaItem[] = [
     id: 'wedding-highlight-01',
     type: 'video',
     src: '/videos/weddings/wedding-highlight-01.mp4',
-    poster: '/images/events/weddings/wedding-highlight-01.jpg',
     category: 'weddings',
     title: 'Wedding reception highlights',
     alt: 'Highlight film from a wedding reception with DJ PAZO',
     layout: 'wide',
   },
   {
-    id: 'private-event-03',
-    type: 'image',
-    src: '/images/events/private-events/private-event-03.jpg',
+    id: 'fiesta-01',
+    type: 'video',
+    src: '/videos/private-events/fiesta-01.mp4',
     category: 'private-events',
-    title: 'Packed house',
-    alt: 'A crowd of guests dancing at a festive house party while DJ PAZO plays from the booth',
+    title: 'Fiesta',
+    alt: 'Guests celebrating at a fiesta private event with DJ PAZO on the decks',
     layout: 'tall',
   },
   {
@@ -162,7 +162,6 @@ export const gallery: MediaItem[] = [
     id: 'performance-01',
     type: 'video',
     src: '/videos/performances/performance-01.mp4',
-    poster: '/images/events/nightlife/performance-01.jpg',
     category: 'nightlife',
     title: 'Live performance',
     alt: 'Live performance video of DJ PAZO',

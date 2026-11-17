@@ -8,9 +8,6 @@ const presentVideos = present.filter((item) => item.type === 'video');
 const noVideosYet = 'No gallery videos uploaded yet';
 const galleryTiles = 'ul[aria-label="Photo and video gallery"] > li';
 
-/** Resolves once the browser has rendered two frames, so IntersectionObserver callbacks have run. */
-const afterNextFrames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
@@ -50,10 +47,19 @@ test('missing gallery files render branded placeholders, not broken media', asyn
   }
 });
 
-test('hero never renders a broken video player', async ({ page }) => {
+test('hero shows its video with no image in front, or the poster only when there is no video', async ({ page }) => {
   const heroVideoExists = existsSync('public/videos/hero/hero-video.mp4') || existsSync('public/images/hero/hero-video.mp4');
   await expect(page.locator('[data-hero-video]')).toHaveCount(heroVideoExists ? 1 : 0);
-  await expect(page.locator('#home img')).toBeVisible(); // poster is always the base layer
+  await expect(page.locator('#home img')).toHaveCount(heroVideoExists ? 0 : 1);
+  await expect(page.locator(heroVideoExists ? '[data-hero-video]' : '#home img')).toBeVisible();
+});
+
+test('hero video starts looping straight away', async ({ page }) => {
+  test.skip(!existsSync('public/videos/hero/hero-video.mp4'), 'No hero video uploaded');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+  const video = page.locator('[data-hero-video]');
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.loop && v.muted)).toBe(true);
 });
 
 test('gallery videos are not downloaded on page load', async ({ page }) => {
@@ -75,38 +81,39 @@ test('gallery tiles are display-only: nothing to click or tab to', async ({ page
   await expect(page.locator(`${galleryTiles} :is(a, button, [tabindex])`)).toHaveCount(0);
 });
 
-test('gallery video previews play once, muted, for at most 5 seconds when scrolled into view', async ({ page }) => {
+test('gallery videos loop forever, muted, with no image in front, and pause off screen', async ({ page }) => {
   test.skip(presentVideos.length === 0, noVideosYet);
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.reload();
 
   const tile = page.locator('[data-gallery-preview]').first();
-  const state = () =>
-    tile.locator('video').evaluate((v: HTMLVideoElement) => ({ paused: v.paused, muted: v.muted, loop: v.loop, time: v.currentTime }));
+  const video = tile.locator('video');
+  const isPlaying = () => video.evaluate((v: HTMLVideoElement) => !v.paused);
 
+  await expect(tile.locator('img')).toHaveCount(0);
   await tile.scrollIntoViewIfNeeded();
-  await expect.poll(async () => (await state()).paused).toBe(false);
-  expect(await state()).toMatchObject({ muted: true, loop: false });
+  // Frames are actually advancing (not just play() requested before the file has loaded).
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0.1)).toBe(true);
+  expect(await video.evaluate((v: HTMLVideoElement) => v.muted && v.loop)).toBe(true);
 
-  // Stops by itself (WCAG 2.2.2: no pause control needed under 5 s). Small margin for timer jitter.
-  await expect.poll(async () => (await state()).paused, { timeout: 8_000 }).toBe(true);
-  expect((await state()).time).toBeLessThanOrEqual(5.25);
+  // Jump to just before the end: it wraps around to the start and keeps playing.
+  await video.evaluate((v: HTMLVideoElement) => (v.currentTime = v.duration - 0.3));
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime < 1)).toBe(true);
 
-  // Scrolling away and back does not start it again.
   await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(isPlaying).toBe(false);
   await tile.scrollIntoViewIfNeeded();
-  await page.evaluate(afterNextFrames);
-  expect((await state()).paused).toBe(true);
+  await expect.poll(isPlaying).toBe(true);
 });
 
-test('with reduced motion, gallery previews never play or download', async ({ page }) => {
+test('with reduced motion, gallery videos show their first frame but never play', async ({ page }) => {
   test.skip(presentVideos.length === 0, noVideosYet);
-  const tile = page.locator('[data-gallery-preview]').first();
-  const video = tile.locator('video');
+  const video = page.locator('[data-gallery-preview] video').first();
 
-  await tile.scrollIntoViewIfNeeded();
-  await page.evaluate(afterNextFrames);
-  await expect(video).not.toHaveAttribute('src');
+  await video.scrollIntoViewIfNeeded();
+  await expect(video).toHaveAttribute('src', /#t=0\.001$/);
+  // HAVE_CURRENT_DATA: a frame is decoded and painted instead of an empty tile.
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThanOrEqual(2);
   expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
 });
 

@@ -9,19 +9,13 @@ const spans: Record<TileLayout, string> = {
   standard: '',
 };
 
-type Tile = MediaItem & { available: boolean; posterAvailable: boolean };
+type Tile = MediaItem & { available: boolean };
 
 const tiles: Tile[] = gallery
-  .map((item) => ({
-    ...item,
-    available: publicAssetExists(item.src),
-    posterAvailable: item.type === 'video' && publicAssetExists(item.poster),
-  }))
+  .map((item) => ({ ...item, available: publicAssetExists(item.src) }))
   .filter((tile) => tile.available || !hideMissingMedia);
 
-const thumbnailFor = (tile: Tile) => (tile.type === 'image' ? tile.src : tile.posterAvailable ? tile.poster : undefined);
-
-// Shared by the still image and the video preview so both crop identically.
+// Shared by photos and videos so both crop identically.
 const fill = 'h-full w-full object-cover';
 ---
 
@@ -32,7 +26,6 @@ const fill = 'h-full w-full object-cover';
   {
     tiles.map((tile, index) => {
       const category = mediaCategories[tile.category].label;
-      const thumbnail = thumbnailFor(tile);
       const isFilm = tile.type === 'video';
       const hasPreview = isFilm && tile.available;
       const objectPosition = tile.focus && `object-position: ${tile.focus}`;
@@ -46,16 +39,17 @@ const fill = 'h-full w-full object-cover';
         >
           {tile.available ? (
             <div class="absolute inset-0 bg-charcoal" data-media-tile={tile.src}>
-              {thumbnail && (
-                <img src={thumbnail} alt={tile.alt} loading="lazy" decoding="async" class={fill} style={objectPosition} />
+              {!isFilm && (
+                <img src={tile.src} alt={tile.alt} loading="lazy" decoding="async" class={fill} style={objectPosition} />
               )}
               {hasPreview && (
                 <video
-                  class:list={[fill, 'absolute inset-0 opacity-0 transition-opacity duration-700']}
+                  class={fill}
                   style={objectPosition}
                   muted
+                  loop
                   playsinline
-                  preload="none"
+                  preload="metadata"
                   disablepictureinpicture
                   aria-hidden="true"
                   data-gallery-video
@@ -66,7 +60,7 @@ const fill = 'h-full w-full object-cover';
               <span class="absolute right-4 bottom-4 left-4 flex flex-col gap-1 text-ivory">
                 <span class="eyebrow hidden text-ivory/75 sm:block">{category}</span>
                 <span class="text-sm leading-snug font-semibold">{tile.title}</span>
-                {!thumbnail && <span class="sr-only">{tile.alt}</span>}
+                {isFilm && <span class="sr-only">{tile.alt}</span>}
               </span>
             </div>
           ) : (
