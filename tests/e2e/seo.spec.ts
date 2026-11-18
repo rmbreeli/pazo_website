@@ -43,9 +43,11 @@ test.describe('metadata', () => {
     for (const pkg of packages) {
       // Same formatter as the page, so $1,495 is expected with its thousands separator.
       await expect(page.locator(`#packages`)).toContainText(formatDollars(pkg.price.amount));
+      if (pkg.additionalFee) {
+        await expect(page.locator('#packages')).toContainText(formatDollars(pkg.additionalFee.amount));
+        await expect(page.locator('#packages')).toContainText(pkg.additionalFee.label);
+      }
     }
-    await expect(page.locator('#packages')).toContainText('$150');
-    await expect(page.locator('#packages')).toContainText('flat fee');
   });
 });
 

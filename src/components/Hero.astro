@@ -10,8 +10,15 @@ import { firstFrame } from '@lib/autoplay-video';
 
 const videoSrc = firstExistingAsset(hero.videoCandidates);
 const webmSrc = publicAssetExists(hero.videoWebm) ? hero.videoWebm : undefined;
+const mobileVideoSrc = videoSrc && publicAssetExists(hero.mobileVideo) ? hero.mobileVideo : undefined;
 // A video always wins: the poster image is only shown when there is no hero video at all.
 const showPoster = !videoSrc && publicAssetExists(hero.poster);
+// Phones get a tall 4:5 frame when they have something shaped for it (the portrait mobile cut, or
+// the photo). A wide video without a mobile cut gets a 16:9 frame instead, so phones see most of the
+// shot rather than a narrow slice, with a smaller wordmark to match the shorter frame.
+const wideOnPhones = Boolean(videoSrc) && !mobileVideoSrc;
+// Keep in sync with Tailwind's `sm` breakpoint (40rem = 640px), where the frame stops being phone-shaped.
+const phoneMedia = '(max-width: 639px)';
 ---
 
 <section id="home" aria-labelledby="hero-title" class="relative pt-[calc(var(--nav-height)+clamp(2rem,6vw,4.5rem))]">
@@ -42,14 +49,20 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
     </div>
 
     <!-- Cinematic media frame. Deliberately NOT animated: it holds the first thing visitors see. -->
-    <div class="relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]">
+    <div
+      class:list={[
+        'relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]',
+        wideOnPhones && 'max-sm:aspect-video',
+      ]}
+      data-hero-frame
+    >
       {
         showPoster && (
           <img
             src={hero.poster}
             alt={hero.posterAlt}
             class="absolute inset-0 h-full w-full object-cover"
-            style={`object-position: ${hero.focus}`}
+            style={`object-position: ${hero.posterFocus}`}
             width="2000"
             height="1333"
             fetchpriority="high"
@@ -61,7 +74,7 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
         videoSrc && (
           <video
             class="absolute inset-0 h-full w-full object-cover"
-            style={`object-position: ${hero.focus}`}
+            style={`object-position: ${hero.videoFocus}`}
             muted
             loop
             playsinline
@@ -70,6 +83,8 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
             aria-hidden="true"
             data-hero-video
           >
+            {/* The browser plays the first source that matches, so the phone cut must come first. */}
+            {mobileVideoSrc && <source src={firstFrame(mobileVideoSrc)} type="video/mp4" media={phoneMedia} />}
             {webmSrc && <source src={firstFrame(webmSrc)} type="video/webm" />}
             <source src={firstFrame(videoSrc)} type="video/mp4" />
           </video>
@@ -81,7 +96,10 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
       <Wordmark
         tone="light"
         aria-hidden="true"
-        class="pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)] lg:left-10"
+        class:list={[
+          'pointer-events-none absolute bottom-0 left-[var(--gutter)] translate-y-[14%] text-[clamp(5.5rem,23vw,20rem)] lg:left-10',
+          wideOnPhones && 'max-sm:text-[15vw]',
+        ]}
       />
 
       <ul class="absolute top-5 left-5 flex flex-wrap gap-x-5 gap-y-1 sm:top-7 sm:left-7" aria-label="Event specialties">

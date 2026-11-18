@@ -90,7 +90,7 @@ export const packages: Package[] = [
     id: 'signature-wedding',
     category: 'Weddings',
     name: 'Signature Wedding Reception',
-    price: { amount: 1495 },
+    price: { amount: 1295 },
     duration: 'Up to 10 hours of total coverage',
     description:
       'An elevated wedding experience with ceremony and cocktail-hour coverage, upgraded lighting, and more time to celebrate.',
