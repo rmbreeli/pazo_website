@@ -8,6 +8,11 @@ site shows a branded panel until the file exists.
 what visitors see from the very first moment. No poster or still frame is
 needed.
 
+While a video is still loading, a tiny blurred copy of its first frame (about
+1 KB, inlined in the page) sits *behind* it, so the frame is never a black
+box. The video paints over it as soon as it can. After adding or replacing a
+video, run `npm run video:backdrops` and commit `src/config/video-backdrops.json`.
+
 ## Where each video goes
 
 | What | Path |
@@ -35,6 +40,8 @@ needed.
 - **Phones:** if `hero-video-mobile.mp4` exists, phones play that portrait cut
   in a tall 4:5 frame. Otherwise they play the main video in a 16:9 frame so
   most of the wide shot stays visible. Directions: `hero/README.md`.
+- Starts straight from the HTML (`autoplay`, `preload="auto"`), without
+  waiting for JavaScript. It pauses while scrolled off screen.
 - Visitors with *Reduce Motion* or *Data Saver* enabled see the video's
   first frame instead.
 
@@ -51,8 +58,10 @@ needed.
 ## Gallery videos
 
 - Play **muted, looping forever, inline** right in their tile while it is on
-  screen, and pause when scrolled away. The file is only downloaded once the
-  tile scrolls into view, so videos never slow down the initial page load.
+  screen, and pause when scrolled away. The file starts downloading about
+  300 px *before* the tile scrolls into view (so it is already buffering when
+  the visitor arrives), but never on page load, so videos don't slow down the
+  initial page load.
 - Tiles have no buttons and can't be clicked.
 - Visitors with *Reduce Motion* or *Data Saver* enabled see the video's first
   frame, without playback.
@@ -61,6 +70,9 @@ needed.
   tiles.
 - **Format:** MP4 (H.264), `-movflags +faststart` recommended. Videos are
   muted, so audio is optional.
+- **Easiest way to get this right:** `npm run video:optimize -- <hero|wide|portrait> <file>`
+  re-encodes a video in place (H.264, faststart, no audio, capped bitrate).
+  Then run `npm run video:backdrops`.
 
 ## Add a new video
 
