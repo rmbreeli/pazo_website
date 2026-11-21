@@ -13,6 +13,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "media:optimize": "node scripts/optimize-media.mjs",
+    "video:optimize": "bash scripts/optimize-video.sh",
+    "video:backdrops": "node scripts/video-backdrops.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

@@ -7,6 +7,7 @@ import { business } from '@config/business';
 import { hero } from '@config/media';
 import { firstExistingAsset, publicAssetExists } from '@lib/assets';
 import { firstFrame } from '@lib/autoplay-video';
+import { videoBackdrop } from '@lib/video-backdrop';
 
 const videoSrc = firstExistingAsset(hero.videoCandidates);
 const webmSrc = publicAssetExists(hero.videoWebm) ? hero.videoWebm : undefined;
@@ -19,6 +20,12 @@ const showPoster = !videoSrc && publicAssetExists(hero.poster);
 const wideOnPhones = Boolean(videoSrc) && !mobileVideoSrc;
 // Keep in sync with Tailwind's `sm` breakpoint (40rem = 640px), where the frame stops being phone-shaped.
 const phoneMedia = '(max-width: 639px)';
+// Soft blurred first frame BEHIND the video (never in front), so the frame is never black while
+// the video loads. Phones that get the portrait cut get that cut's own backdrop.
+const wideBackdrop = videoBackdrop(videoSrc);
+const phoneBackdrop = videoBackdrop(mobileVideoSrc) ?? wideBackdrop;
+const backdropStyle =
+  wideBackdrop && `--backdrop: ${wideBackdrop}; --backdrop-phone: ${phoneBackdrop}; background-position: ${hero.videoFocus}`;
 ---
 
 <section id="home" aria-labelledby="hero-title" class="relative pt-[calc(var(--nav-height)+clamp(2rem,6vw,4.5rem))]">
@@ -53,7 +60,9 @@ const phoneMedia = '(max-width: 639px)';
       class:list={[
         'relative mt-12 aspect-[4/5] overflow-hidden bg-ink sm:aspect-[16/10] lg:mt-16 lg:aspect-[21/9]',
         wideOnPhones && 'max-sm:aspect-video',
+        backdropStyle && 'bg-cover bg-[image:var(--backdrop)] max-sm:bg-[image:var(--backdrop-phone)]',
       ]}
+      style={backdropStyle}
       data-hero-frame
     >
       {
@@ -75,10 +84,11 @@ const phoneMedia = '(max-width: 639px)';
           <video
             class="absolute inset-0 h-full w-full object-cover"
             style={`object-position: ${hero.videoFocus}`}
+            autoplay
             muted
             loop
             playsinline
-            preload="metadata"
+            preload="auto"
             disablepictureinpicture
             aria-hidden="true"
             data-hero-video
@@ -129,13 +139,18 @@ const phoneMedia = '(max-width: 639px)';
     // A file the browser can't play is removed, never shown as a broken player.
     video.querySelector('source:last-of-type')?.addEventListener('error', () => video.remove());
 
-    // Continuous loop with no pause control. It only rests while scrolled off screen (saves battery)
-    // and picks up again the moment it is back. Reduce Motion / Data Saver: stays on its first frame.
+    // The `autoplay` attribute starts the video as soon as the browser can, with no wait for this
+    // script. Continuous loop with no pause control. It only rests while scrolled off screen (saves
+    // battery) and picks up again the moment it is back.
     if (canAutoplay()) {
       new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting) video.play().catch(() => {});
         else video.pause();
       }).observe(video);
+    } else {
+      // Reduce Motion / Data Saver: undo the autoplay, rest on the first frame, and stop pre-fetching.
+      video.pause();
+      video.preload = 'metadata';
     }
   }
 </script>

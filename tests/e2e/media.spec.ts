@@ -133,6 +133,51 @@ test('with reduced motion, gallery videos show their first frame but never play'
   expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
 });
 
+test('hero video autoplays from the HTML and preloads, with a blurred backdrop behind it', async ({ page }) => {
+  test.skip(!existsSync('public/videos/hero/hero-video.mp4'), 'No hero video uploaded');
+  const video = page.locator('[data-hero-video]');
+  await expect(video).toHaveAttribute('autoplay', '');
+  await expect(video).toHaveAttribute('preload', /auto|metadata/); // metadata once Reduce Motion is detected
+  const backdrop = await page.locator('[data-hero-frame]').evaluate((el) => getComputedStyle(el).backgroundImage);
+  expect(backdrop).toMatch(/^url\("?data:image\/jpeg;base64,/);
+});
+
+test('with reduced motion, the hero video rests on its first frame and stops pre-fetching', async ({ page }) => {
+  test.skip(!existsSync('public/videos/hero/hero-video.mp4'), 'No hero video uploaded');
+  const video = page.locator('[data-hero-video]');
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  await expect(video).toHaveAttribute('preload', 'metadata');
+});
+
+test('gallery videos get a blurred backdrop behind them, and no image in front', async ({ page }) => {
+  test.skip(presentVideos.length === 0, noVideosYet);
+  const tiles = page.locator('[data-gallery-preview] [data-media-tile]');
+  for (const tile of await tiles.all()) {
+    const backdrop = await tile.evaluate((el) => getComputedStyle(el).backgroundImage);
+    expect(backdrop).toMatch(/^url\("?data:image\/jpeg;base64,/);
+    await expect(tile.locator('img')).toHaveCount(0);
+  }
+});
+
+test('gallery videos start loading just before their tile is on screen, but only play once visible', async ({ page }) => {
+  test.skip(presentVideos.length === 0, noVideosYet);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.reload();
+
+  const tile = page.locator('[data-gallery-preview]').first();
+  const video = tile.locator('video');
+  await expect(video).not.toHaveAttribute('src', /./); // far below the fold: untouched on load
+
+  // Put the tile's top edge 150 px below the viewport: inside the look-ahead zone, still off screen.
+  await tile.evaluate((el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - window.innerHeight - 150));
+  await expect(video).toHaveAttribute('src', /#t=0\.001$/);
+  await expect(video).toHaveAttribute('preload', 'auto');
+  expect(await video.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+
+  await tile.scrollIntoViewIfNeeded();
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true);
+});
+
 test('listen links open the real external sources in a new tab', async ({ page }) => {
   const links = page.locator('a[href*="soundcloud.com/dj-pazo/"], a[href*="youtube.com/watch"]');
   await expect(links).toHaveCount(3);

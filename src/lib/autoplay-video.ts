@@ -1,8 +1,7 @@
 /**
  * Shared rules for every muted, looping video on the site.
  * Visitors who ask for less motion or less data never get autoplay;
- * they see the video's first frame (never a separate image) and the hero
- * offers a play button.
+ * they see the video's first frame (never a separate image in front of it).
  */
 export const canAutoplay = (): boolean => {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

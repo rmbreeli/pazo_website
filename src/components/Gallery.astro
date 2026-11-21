@@ -1,6 +1,7 @@
 ---
 import { gallery, hideMissingMedia, mediaCategories, type MediaItem, type TileLayout } from '@config/media';
 import { publicAssetExists } from '@lib/assets';
+import { videoBackdrop } from '@lib/video-backdrop';
 
 const spans: Record<TileLayout, string> = {
   feature: 'col-span-2 row-span-2',
@@ -29,6 +30,9 @@ const fill = 'h-full w-full object-cover';
       const isFilm = tile.type === 'video';
       const hasPreview = isFilm && tile.available;
       const objectPosition = tile.focus && `object-position: ${tile.focus}`;
+      // Blurred first frame behind a film tile, so it is never a black box while the video loads.
+      const backdrop = isFilm ? videoBackdrop(tile.src) : undefined;
+      const backdropStyle = backdrop && `background-image: ${backdrop}; background-position: ${tile.focus ?? '50% 50%'}`;
 
       return (
         <li
@@ -38,7 +42,11 @@ const fill = 'h-full w-full object-cover';
           style={`--reveal-delay: ${(index % 4) * 60}ms`}
         >
           {tile.available ? (
-            <div class="absolute inset-0 bg-charcoal" data-media-tile={tile.src}>
+            <div
+              class:list={['absolute inset-0 bg-charcoal', backdrop && 'bg-cover']}
+              style={backdropStyle}
+              data-media-tile={tile.src}
+            >
               {!isFilm && (
                 <img src={tile.src} alt={tile.alt} loading="lazy" decoding="async" class={fill} style={objectPosition} />
               )}
